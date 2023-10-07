@@ -5,6 +5,7 @@ print("Hello World")
  
 LPWM = 12
 RPWM = 13
+
 # Set the GPIO mode (BCM or BOARD)
 GPIO.setmode(GPIO.BCM)
 
@@ -13,7 +14,7 @@ GPIO.setup(RPWM, GPIO.OUT)
 GPIO.setup(LPWM, GPIO.OUT)
 
 # Set and create a PWM Object
-rpwm = GPIO.PWM(RPWM, 1000)  # 1000 Hz PWM frequency
+rpwm = GPIO.PWM(RPWM, 1000)  # 1000 Hz PWM frequency, cambia hay que ver la frecuencia del motor y el encoder para ajustarla
 lpwm = GPIO.PWM(LPWM, 1000)  # 1000 Hz PWM frequency
 
 # Start PWM signal
@@ -31,6 +32,8 @@ try:
 		lpwm.ChangeDutyCycle(abs(70))  # Set motor speed
 		sleep(5)
 		lpwm.ChangeDutyCycle(abs(0))  # Set motor speed
+		
+# Aqui se puchurra ctrl+C para salir, al hacer esto se ejecuta el finally
 except KeyboardInterrupt:
 	pass
 	
