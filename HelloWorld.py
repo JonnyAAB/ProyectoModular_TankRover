@@ -3,7 +3,7 @@ from time import sleep
 
 print("Hello World")
  
-LPWM = 12
+LPWM = 19
 RPWM = 13
 
 # Set the GPIO mode (BCM or BOARD)

@@ -2,9 +2,9 @@ import RPi.GPIO as GPIO
 import time
 
 # Define the GPIO pins for PWM, direction, and enable
-PWM_PIN = 13
-DIR_PIN = 13
-EN_PIN = 12
+PWM_PIN = 13        
+DIR_PIN = 19
+EN_PIN = 3
 
 # Initialize GPIO
 GPIO.setmode(GPIO.BCM)
@@ -23,7 +23,7 @@ def set_motor_speed(speed):
         GPIO.output(DIR_PIN, GPIO.HIGH)  # Set direction forward
     else:
         GPIO.output(DIR_PIN, GPIO.LOW)  # Set direction backward
-        pwm.ChangeDutyCycle(abs(speed))  # Set motor speed
+    pwm.ChangeDutyCycle(abs(speed))  # Set motor speed
 
 def enable_motor():
     print("enable_motor funci")
@@ -37,12 +37,16 @@ def disable_motor():
 try:
     print("hello")
     enable_motor()
+    set_motor_speed(-50)  # Set motor speed (0-100, positive for forward, negative for backward)
+    time.sleep(5)  # Run the motor for 5 seconds
     set_motor_speed(50)  # Set motor speed (0-100, positive for forward, negative for backward)
     time.sleep(5)  # Run the motor for 5 seconds
+
 
 except KeyboardInterrupt:
     pass
 
 finally:
+    print("bye")
     disable_motor()
     GPIO.cleanup()  # Cleanup GPIO on program exit
