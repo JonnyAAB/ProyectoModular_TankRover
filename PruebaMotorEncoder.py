@@ -14,10 +14,10 @@ GPIO.setmode(GPIO.BCM)
 # Setting GPIO pin as output
 GPIO.setup(RPWM, GPIO.OUT)
 GPIO.setup(LPWM, GPIO.OUT)
-GPIO.setup(Encoder_DIR_B, GPIO.OUT)
+#GPIO.setup(Encoder_DIR_B, GPIO.OUT)
 #GPIO.setup(Encoder_DIR_B, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-GPIO.setup(Encoder_INT_G, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+#GPIO.setup(Encoder_INT_G, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # Set and create a PWM Object
 rpwm = GPIO.PWM(RPWM, 1000)  # 1000 Hz PWM frequency, cambia hay que ver la frecuencia del motor y el encoder para ajustarla
@@ -33,9 +33,9 @@ try:
 		rpwm.ChangeDutyCycle(abs(70))  # Set motor speed
 		print("rpwm")
 		#DIR_State = GPIO.input(Encoder_DIR_B)
-		INT_State = GPIO.input(Encoder_INT_G)
+		#INT_State = GPIO.input(Encoder_INT_G)
 		#print(f"GPIO PIN Dir {Encoder_DIR_B} state: {DIR_State}")
-		print(f"GPIO PIN Int {Encoder_INT_G} state: {INT_State}")
+		#print(f"GPIO PIN Int {Encoder_INT_G} state: {INT_State}")
 		
 		sleep(5)
 		print("lpwm")
