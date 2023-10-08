@@ -3,7 +3,7 @@ import time
 
 # Define the GPIO pins for PWM, direction, and enable
 PWMR_PIN = 13        
-PWML_PIN = 12        
+PWML_PIN = 12      
 EN_PIN = 2
 
 # Initialize GPIO
@@ -47,9 +47,9 @@ try:
     print("hello")
     while True:
         enable_motor()
-        set_motor_speed(-50)  # Set motor speed (0-100, positive for forward, negative for backward)
+        set_motor_speed(100)  # Set motor speed (0-100, positive for forward, negative for backward)
         time.sleep(5)  # Run the motor for 5 seconds
-        set_motor_speed(50)  # Set motor speed (0-100, positive for forward, negative for backward)
+        set_motor_speed(-100)  # Set motor speed (0-100, positive for forward, negative for backward)
         time.sleep(5)  # Run the motor for 5 seconds
 
 except KeyboardInterrupt:
