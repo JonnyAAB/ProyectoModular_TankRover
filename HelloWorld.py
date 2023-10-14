@@ -46,7 +46,7 @@ try:
 
 		
 # Aqui se puchurra ctrl+C para salir, al hacer esto se ejecuta el finally
-except KeyboardInterrupt:
+# ~ except KeyboardInterrupt:
 	pass
 	
 finally:
