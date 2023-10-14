@@ -1,6 +1,14 @@
 import RPi.GPIO as GPIO
 from time import sleep
 
+# Pin del motor:
+	#Rojo motor+
+	#Negro motor-
+	#Verde gnd
+	#Azul vcc encoder 5V
+	#Amarillo salida A, encoder adelante activa primero este
+	# Blanco salida b, encoder reversa activa primero este
+
 print("Hello World")
  
 LPWM = 32
