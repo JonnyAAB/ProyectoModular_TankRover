@@ -12,19 +12,18 @@ ENCODER_B = 13
 posicion = 0
 
 def actualizar_posicion(channel):
-	lecturaSignalA = GPIO.input(ENCODER_A)
-	#lecturaSignalB = GPIO.input(ENCODER_B)
-
-	# Determinar la dirección y sentido del giro del encoder
-	lecturaSignalB = GPIO.input(ENCODER_B)
-	print(lecturaSignalA)
-	print(lecturaSignalB)
-	global posicion
-	if(lecturaSignalB > 0):
-		posicion+=1
-	else:
-		posicion-=1
-	print("Posicion:", posicion)
+    global posicion
+    if GPIO.input(ENCODER_A) == GPIO.HIGH:
+        if GPIO.input(ENCODER_B) == GPIO.LOW:
+            posicion += 1
+        else:
+            posicion -= 1
+    else:
+        if GPIO.input(ENCODER_B) == GPIO.HIGH:
+            posicion += 1
+        else:
+            posicion -= 1
+    print("Posición:", posicion)
 
 try:
     # Configuración de GPIO
