@@ -1,62 +1,20 @@
 import RPi.GPIO as GPIO
 from time import sleep
 
-# Pin del motor:
-#   Rojo motor+
-#   Negro motor-
-#   Verde GND
-#   Azul VCC encoder 3.3V
-#   Amarillo salida A, encoder adelante (activa primero este)
-#   Blanco salida B, encoder reversa (activa primero este)
-
-#Parte Motor
-#-------------------------------------------------------------------
-LPWM = 32
-RPWM = 33
+# Definición de pines
+RPWM = 32
+LPWM = 33
 EN_PWM = 35
+ENCODER_A = 11
+ENCODER_B = 13
 
-# Set the GPIO mode (BCM or BOARD)
-GPIO.setmode(GPIO.BOARD)
-
-# Setting GPIO pin as output
-GPIO.setup(RPWM, GPIO.OUT)
-GPIO.setup(LPWM, GPIO.OUT)
-GPIO.setup(EN_PWM, GPIO.OUT)
-
-#GPIO.setup(Encoder_INT_G, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-
-# Set and create a PWM Object
-rpwm = GPIO.PWM(RPWM, 1000)  # 1000 Hz PWM frequency, activa de motor
-lpwm = GPIO.PWM(LPWM, 1000)  # 1000 Hz PWM frequency, para cambiar el sentido
-en_pwm = GPIO.PWM(EN_PWM, 1000) # Ambos enable en el mismo canal
-
-# Start PWM signal
-rpwm.start(0)  # Start with 0% duty cycle
-lpwm.start(0)  # Start with 0% duty cycle
-en_pwm.start(100)
-#-------------------------------------------------------------------
-
-#Parte Encoder
-#-------------------------------------------------------------------
-print("Prueba únicamente del encoder")
-
-encoderA = 11
-encoderB = 13
+# Variables globales
 posicion = 0
-
-print("Posición inicial:", posicion)
-
-# Configuración Raspberry pines
-#GPIO.setmode(GPIO.BOARD)
-GPIO.setup(encoderA, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(encoderB, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-#-------------------------------------------------------------------
-
 
 def actualizar_posicion(channel):
     global posicion
-    lecturaSignalA = GPIO.input(encoderA)
-    lecturaSignalB = GPIO.input(encoderB)
+    lecturaSignalA = GPIO.input(ENCODER_A)
+    lecturaSignalB = GPIO.input(ENCODER_B)
 
     # Determinar la dirección y sentido del giro del encoder
     if lecturaSignalA == lecturaSignalB:
@@ -64,26 +22,40 @@ def actualizar_posicion(channel):
     else:
         posicion -= 1
 
-# Configurar la detección de eventos en ambos pines del encoder
-GPIO.add_event_detect(encoderA, GPIO.BOTH, callback=actualizar_posicion)
-GPIO.add_event_detect(encoderB, GPIO.BOTH, callback=actualizar_posicion)
-
 try:
-	while(True):
-		print("rpwm")
-		rpwm.ChangeDutyCycle(abs(70))  # Set motor speed 60 da 11.6V al motor y 0.3A
-		# Imprimir la posición actual del encoder
-		print("Posición:", posicion)
-		sleep(0.1)  # Esperar un corto período para evitar un bucle continuo
+    # Configuración de GPIO
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(RPWM, GPIO.OUT)
+    GPIO.setup(LPWM, GPIO.OUT)
+    GPIO.setup(EN_PWM, GPIO.OUT)
+    GPIO.setup(ENCODER_A, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(ENCODER_B, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+
+    # Crear objetos PWM
+    rpwm = GPIO.PWM(RPWM, 1000)
+    lpwm = GPIO.PWM(LPWM, 1000)
+    en_pwm = GPIO.PWM(EN_PWM, 1000)
+
+    # Iniciar PWM
+    rpwm.start(0)
+    lpwm.start(0)
+    en_pwm.start(100)
+
+    while True:
+        # Cambiar la velocidad del motor 
+        rpwm.ChangeDutyCycle(70)  # (ajusta según tus requerimientos)
+
+        # Imprimir la posición actual del encoder
+        print("Posición:", posicion)
+        sleep(0.1)
 
 except KeyboardInterrupt:
     pass
 
-# Limpieza de recursos GPIO al finalizar
 finally:
-	rpwm.stop()
-	lpwm.stop()
-	en_pwm.stop()
-	GPIO.cleanup()
-	print("Adios :D")
-	sleep(3)
+    # Detener PWM y limpiar GPIO
+    rpwm.stop()
+    lpwm.stop()
+    en_pwm.stop()
+    GPIO.cleanup()
+    print("Programa terminado.")
