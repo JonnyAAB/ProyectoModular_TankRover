@@ -69,10 +69,10 @@ GPIO.add_event_detect(encoderA, GPIO.BOTH, callback=actualizar_posicion)
 GPIO.add_event_detect(encoderB, GPIO.BOTH, callback=actualizar_posicion)
 
 try:
-    while True:
-		# Imprimir la posición actual del encoder
+	while(True):
 		print("rpwm")
 		rpwm.ChangeDutyCycle(abs(70))  # Set motor speed 60 da 11.6V al motor y 0.3A
+		# Imprimir la posición actual del encoder
 		print("Posición:", posicion)
 		sleep(0.1)  # Esperar un corto período para evitar un bucle continuo
 
