@@ -17,6 +17,10 @@ encoderA = 11
 encoderB = 13
 posicion = 0
 
+# eventdetect(pin a detectar, tipoEvento, funcion a llamar,tiempoRebote: periodo donde no considera cambios "filtro"
+GPIO.add_event_detect(encoderA, GPIO.RISING, callback=leerEncoder,bouncetime=50)  # Al meterlo a un ciclo vale chetos, y si lo sacamos :/
+
+
 #Esta será la funcion que llamara de retorno la funcion add_event_detect
 def leerEncoder(pinNo):
 	lecturaSignalB = GPIO.input(encoderB)
@@ -44,7 +48,8 @@ if __name__=='__main__':
 	
 	#Agregando el evento
 	#GPIO.add_event_detect(encoderA, GPIO.RISING, callback=leerEncoder, bouncetime=100)
-	GPIO.add_event_detect(encoderA, GPIO.RISING, callback=leerEncoder,bouncetime=50)  # Al eterlo a un ciclo vale chetos
+	#while(True)
+	#	GPIO.add_event_detect(encoderA, GPIO.RISING, callback=leerEncoder,bouncetime=50)  # Al meterlo a un ciclo vale chetos
 	
 	#Condiciones para pausar el programa
 	signal.signal(signal.SIGINT, signal_handler)		
