@@ -12,15 +12,19 @@ ENCODER_B = 13
 posicion = 0
 
 def actualizar_posicion(channel):
-    global posicion
-    lecturaSignalA = GPIO.input(ENCODER_A)
-    lecturaSignalB = GPIO.input(ENCODER_B)
+	lecturaSignalA = GPIO.input(ENCODER_A)
+	#lecturaSignalB = GPIO.input(ENCODER_B)
 
-    # Determinar la dirección y sentido del giro del encoder
-    if lecturaSignalA == lecturaSignalB:
-        posicion += 1
-    else:
-        posicion -= 1
+	# Determinar la dirección y sentido del giro del encoder
+	lecturaSignalB = GPIO.input(ENCODER_B)
+	print(lecturaSignalA)
+	print(lecturaSignalB)
+	global posicion
+	if(lecturaSignalB > 0):
+		posicion+=1
+	else:
+		posicion-=1
+	print("Posicion:", posicion)
 
 try:
     # Configuración de GPIO
@@ -29,8 +33,9 @@ try:
     GPIO.setup(LPWM, GPIO.OUT)
     GPIO.setup(EN_PWM, GPIO.OUT)
     GPIO.setup(ENCODER_A, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    GPIO.setup(ENCODER_B, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-
+    GPIO.setup(ENCODER_B, GPIO.IN)
+    GPIO.add_event_detect(ENCODER_A, GPIO.RISING, callback=actualizar_posicion,bouncetime=50)  # Al meterlo a un ciclo vale cheto
+    
     # Crear objetos PWM
     rpwm = GPIO.PWM(RPWM, 1000)
     lpwm = GPIO.PWM(LPWM, 1000)
