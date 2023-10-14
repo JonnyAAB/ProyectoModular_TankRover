@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 from time import sleep,time
+import matplotlib.pyplot as plt
 
 #Parte de Control
 # Posición deseada encoder
