@@ -7,7 +7,7 @@ from time import sleep
 	#Rojo motor+
 	#Negro motor-
 	#Verde gnd
-	#Azul vcc encoder 5V
+	#Azul vcc encoder 3.3V
 	#Amarillo salida A, encoder adelante activa primero este
 	# Blanco salida b, encoder reversa activa primero este
 	
