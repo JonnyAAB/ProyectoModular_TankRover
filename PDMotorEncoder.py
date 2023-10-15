@@ -1,6 +1,6 @@
 import RPi.GPIO as GPIO
 from time import sleep,time
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 #Parte de Control
 # Posición deseada encoder
@@ -66,9 +66,12 @@ try:
 	rpwm.start(0)
 	lpwm.start(5)
 	en_pwm.start(100)
-	
+
 	errorAnt = 0
 	tiempoAnterior = 0
+	tTranscurrido = 0
+	tiempo.append(tTranscurrido)
+	i=1
 	while True:
 		#Calculo del tiempo
 		tiempoActual=time()
@@ -94,7 +97,14 @@ try:
 		setMotor(direccion,abs(u))
 		
 		pos.append(posicion)
-		tiempo.append(tiempoActual)
+		
+		if(i==1):
+			tTranscurrido += 0.1
+		else:
+			tTranscurrido += deltaTiempo
+				
+		print("Tiempo = ",tTranscurrido)
+		tiempo.append(tTranscurrido)
 			
 		# Imprimir la posición actual del encoder
 		print("Posición:", posicion)
@@ -104,7 +114,7 @@ try:
 		
 		#Imprimir control
 		print("El control es de: ",u)
-		
+		i+=1
 		sleep(0.1)
 
 except KeyboardInterrupt:
@@ -116,6 +126,11 @@ finally:
 	lpwm.stop()
 	en_pwm.stop()
 	GPIO.cleanup()
+	plt.plot(tiempo,pos)
+	plt.xlabel("tiempo")
+	plt.ylabel("posición")
+	plt.grid(True)
+	plt.show()
 	with open("tiempo.txt","w") as archivo:
 		for element in tiempo:
 			archivo.write(str(element)+"\n")
