@@ -12,12 +12,12 @@ import matplotlib.pyplot as plt
 
 #Parte de Control
 # Posición deseada encoder
-pd = 110
+int pd
 #Ganancias
-kp = .3
-kd = 0.006
+kp = .09
+kd = 0.005
 
-tSimulacion = 25
+tSimulacion = 36		# Tiempo Simulación
 
 #Inicializar listas, (tiempo,posicion,AccionControl,posicionDeseada y error)
 tiempo=[]		
@@ -37,7 +37,7 @@ ENCODER_B = 13
 posicion = 0
 
 def actualizar_posicion(channel):
-    global posicion
+    global int posicion
     if GPIO.input(ENCODER_A) == GPIO.HIGH:	#Cuando detecta el flanco A 
         if GPIO.input(ENCODER_B) == GPIO.LOW:	#Si el flanco B esta abajo, se movió hacia adelante
             posicion += 1
@@ -61,7 +61,7 @@ try:
 	GPIO.setup(EN_PWM, GPIO.OUT)
 	GPIO.setup(ENCODER_A, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)	# Configurado como PullDown
 	GPIO.setup(ENCODER_B, GPIO.IN)
-	GPIO.add_event_detect(ENCODER_A, GPIO.RISING, callback=actualizar_posicion,bouncetime=50)  # Configuracion que detecta flancos 
+	GPIO.add_event_detect(ENCODER_A, GPIO.RISING, callback=actualizar_posicion,bouncetime= 50)  # Configuracion que detecta flancos, bouncetiem dice que tan rapido lee el encoder
 
 	# Crear objetos PWM
 	rpwm = GPIO.PWM(RPWM, 1000)
@@ -97,8 +97,8 @@ try:
 		u = kp*error+kd*dError
 		
 		#Saturación
-		if(abs(u)>80):
-			u=80
+		if(abs(15)>10):
+			u=15
 		
 		# Cambio de dirección dependiendo la ley de control
 		if(u<0):
