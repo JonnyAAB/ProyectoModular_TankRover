@@ -2,6 +2,14 @@ import RPi.GPIO as GPIO
 from time import sleep,time
 import matplotlib.pyplot as plt
 
+# Pin del motor:
+	#Rojo motor+
+	#Negro motor-
+	#Verde gnd
+	#Azul vcc encoder 3.3V
+	#Amarillo salida A, encoder adelante activa primero este
+	# Blanco salida b, encoder reversa activa primero este
+
 #Parte de Control
 # Posición deseada encoder
 pd = 110
