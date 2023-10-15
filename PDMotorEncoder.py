@@ -125,17 +125,18 @@ finally:
 	lpwm.stop()
 	en_pwm.stop()
 	GPIO.cleanup()
-	plt.plot(tiempo,pos)
-	plt.xlabel("tiempo")
-	plt.ylabel("posición")
-	plt.grid(True)
-	plt.show()
 	with open("tiempo.txt","w") as archivo:
 		for element in tiempo:
 			archivo.write(str(element)+"\n")
 	with open("posicion.txt","w") as archivo:
 		for element in pos:
 			archivo.write(str(element)+"\n")
+	# ~ plt.plot(tiempo,pos)
+	# ~ plt.xlabel("tiempo")
+	# ~ plt.ylabel("posición")
+	# ~ plt.grid(True)
+	# ~ plt.show()
+	
 		
 	print("Programa terminado.")
 	sleep(10)
