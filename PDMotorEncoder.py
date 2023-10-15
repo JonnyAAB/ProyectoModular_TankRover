@@ -1,6 +1,6 @@
 import RPi.GPIO as GPIO
 from time import sleep,time
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 #Parte de Control
 # Posición deseada encoder
@@ -70,6 +70,7 @@ try:
 	errorAnt = 0
 	tiempoAnterior = 0
 	tTranscurrido = 0
+	error = pd-posicion
 	i=1
 	while True:
 		#Calculo del tiempo
@@ -131,11 +132,11 @@ finally:
 	with open("posicion.txt","w") as archivo:
 		for element in pos:
 			archivo.write(str(element)+"\n")
-	# ~ plt.plot(tiempo,pos)
-	# ~ plt.xlabel("tiempo")
-	# ~ plt.ylabel("posición")
-	# ~ plt.grid(True)
-	# ~ plt.show()
+	plt.plot(tiempo,pos)
+	plt.xlabel("tiempo")
+	plt.ylabel("posición")
+	plt.grid(True)
+	plt.show()
 	
 		
 	print("Programa terminado.")
