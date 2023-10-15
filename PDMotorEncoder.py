@@ -70,7 +70,6 @@ try:
 	errorAnt = 0
 	tiempoAnterior = 0
 	tTranscurrido = 0
-	tiempo.append(tTranscurrido)
 	i=1
 	while True:
 		#Calculo del tiempo
@@ -99,7 +98,7 @@ try:
 		pos.append(posicion)
 		
 		if(i==1):
-			tTranscurrido += 0.1
+			tTranscurrido += 0
 		else:
 			tTranscurrido += deltaTiempo
 				
