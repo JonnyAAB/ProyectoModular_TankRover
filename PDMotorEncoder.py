@@ -4,14 +4,18 @@ import matplotlib.pyplot as plt
 
 #Parte de Control
 # Posición deseada encoder
-pd = -80
+pd = 194
 #Ganancias
-kp = .1
+kp = .15
 kd = 0.001
+
+tSimulacion = 15
 
 #Inicializar listas
 tiempo=[]
 pos = []
+control = []
+pdPlot=[]
 
 # Definición de pines
 RPWM = 32
@@ -69,10 +73,11 @@ try:
 
 	errorAnt = 0
 	tiempoAnterior = 0
-	tTranscurrido = 0
+	t = 0
 	error = pd-posicion
 	i=1
-	while True:
+	# ~ while abs(error)>0.001:
+	while t<tSimulacion:
 		#Calculo del tiempo
 		tiempoActual=time()
 		deltaTiempo = tiempoActual-tiempoAnterior
@@ -99,12 +104,12 @@ try:
 		pos.append(posicion)
 		
 		if(i==1):
-			tTranscurrido += 0
+			t += 0
 		else:
-			tTranscurrido += deltaTiempo
+			t += deltaTiempo
 				
-		print("Tiempo = ",tTranscurrido)
-		tiempo.append(tTranscurrido)
+		print("Tiempo = ",t)
+		tiempo.append(t)
 			
 		# Imprimir la posición actual del encoder
 		print("Posición:", posicion)
@@ -114,6 +119,8 @@ try:
 		
 		#Imprimir control
 		print("El control es de: ",u)
+		control.append(u)
+		pdPlot.append(pd)
 		i+=1
 		sleep(0.1)
 
@@ -126,16 +133,27 @@ finally:
 	lpwm.stop()
 	en_pwm.stop()
 	GPIO.cleanup()
-	with open("tiempo.txt","w") as archivo:
-		for element in tiempo:
-			archivo.write(str(element)+"\n")
-	with open("posicion.txt","w") as archivo:
-		for element in pos:
-			archivo.write(str(element)+"\n")
-	plt.plot(tiempo,pos)
-	plt.xlabel("tiempo")
-	plt.ylabel("posición")
+	
+	#Zona de Graficas
+	plt.figure(1)
+	plt.plot(tiempo,pos,label='Posición Actual', color='blue',linestyle = '-')
+	plt.plot(tiempo,pdPlot,label='Posición Deseada', color='red',linestyle='--')
+	# ~ plt.ylim(-100,100)
+	# ~ plt.axis([xmin,xmax,ymin,ymax])
+	plt.title("Grafica Posición")
+	plt.xlabel("Tiempo")
+	plt.ylabel("Posición")
+	plt.legend()
 	plt.grid(True)
+	
+	plt.figure(2)
+	plt.plot(tiempo,control, color='blue',linestyle = '-')
+	plt.title("Grafica Accion de Control")
+	plt.xlabel("Tiempo")
+	plt.ylabel("Acción de Control")
+	plt.grid(True)
+	
+	#Muestra las graficas
 	plt.show()
 	
 		
