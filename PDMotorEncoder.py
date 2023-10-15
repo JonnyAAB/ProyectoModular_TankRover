@@ -4,18 +4,19 @@ import matplotlib.pyplot as plt
 
 #Parte de Control
 # Posición deseada encoder
-pd = 194
+pd = 110
 #Ganancias
-kp = .15
-kd = 0.001
+kp = .3
+kd = 0.006
 
-tSimulacion = 15
+tSimulacion = 25
 
 #Inicializar listas
 tiempo=[]
 pos = []
 control = []
 pdPlot=[]
+errorPlot = []
 
 # Definición de pines
 RPWM = 32
@@ -116,6 +117,7 @@ try:
 		
 		# Imprimir error
 		print("Error: ",error)
+		errorPlot.append(error)
 		
 		#Imprimir control
 		print("El control es de: ",u)
@@ -153,9 +155,12 @@ finally:
 	plt.ylabel("Acción de Control")
 	plt.grid(True)
 	
+	plt.figure(3)
+	plt.plot(tiempo,errorPlot, color='blue',linestyle = '-')
+	plt.title("Grafica Error")
+	plt.xlabel("Tiempo")
+	plt.ylabel("Error")
+	plt.grid(True)
+	
 	#Muestra las graficas
 	plt.show()
-	
-		
-	print("Programa terminado.")
-	sleep(10)
