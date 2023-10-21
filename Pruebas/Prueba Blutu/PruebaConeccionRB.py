@@ -1,4 +1,8 @@
 import socket
+import json
+
+
+
 
 # Configura el servidor
 server_host = '192.168.0.44'  # Escucha en todas las interfaces de red
@@ -24,7 +28,20 @@ try:
         texto = data.decode()
         print(texto)
         # ~ print("Datos recibidos:", data.decode())
-        
+        # Recibir la cadena JSON (por ejemplo, a través de sockets, Bluetooth, etc.)
+        datos_recibidos = "..."  # Aquí deberías asignar la cadena recibida
+
+        # Convertir la cadena JSON a una estructura de datos de Python
+        datos = json.loads(datos_recibidos)
+
+        # Procesar los datos según el tipo de comando
+        comando = datos["comando"]
+        parametros = datos["parametros"]
+
+        if comando == "ENCENDER_LED":
+            led = parametros["led"]
+            print("Asi se mandan datos")
+            # Realiza la acción correspondiente, como encender el LED
         
         # Procesa los datos según tus necesidades
 except KeyboardInterrupt:
