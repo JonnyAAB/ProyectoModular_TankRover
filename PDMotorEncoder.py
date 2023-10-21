@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 #Parte de Control
 # Posición deseada encoder
-int pd
+pd = 193
 #Ganancias
 kp = .09
 kd = 0.005
