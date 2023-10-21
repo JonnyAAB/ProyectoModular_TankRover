@@ -96,7 +96,7 @@ try:
 	# Configura el servidor
 	# ----------------------------------------------------------------------
 	server_host = '192.168.0.44'  # Escucha en todas las interfaces de red
-	server_port = 1341  # Puerto de escucha (puedes usar cualquier número de puerto)
+	server_port = 1342  # Puerto de escucha (puedes usar cualquier número de puerto)
 	print(f"Esperando conexiones en {server_host}:{server_port}")
 	
 	# Crea el socket del servidor
@@ -191,8 +191,8 @@ try:
 				direccion=1
 
 			#Saturacion
-			if(abs(u)>15):
-				u=15
+			if(abs(u)>55):
+				u=55
 			else:
 				u=abs(u)
 

@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 #Parte de Control
 # Posición deseada encoder
-pd =-100
+pd =100
 #Ganancias
 kp = 10
 kd = 0.005
@@ -103,9 +103,9 @@ try:
 			direccion=1
 
 		#Saturación
-		if(abs(u)>10):
-			u=15
-		
+#		if(abs(u)>10):
+#			u=15
+		u=60
 		# Llamada al control de motores
 		setMotor(direccion,abs(u))	
 		
