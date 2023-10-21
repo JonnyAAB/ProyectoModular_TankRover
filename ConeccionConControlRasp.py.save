@@ -85,7 +85,7 @@ try:
 	GPIO.setup(ENCODER_B, GPIO.IN)
 
 	# Configuracion que detecta flancos, bouncetiem dice que tan rapido lee el encoder
-	GPIO.add_event_detect(ENCODER_A, GPIO.RISING, callback=actualizar_posicion,bouncetime= 50)
+	GPIO.add_event_detect(ENCODER_A, GPIO.RISING, callback=actualizar_posicion,bouncetime= 100)
 
 	# Crear objetos PWM
 	rpwm = GPIO.PWM(RPWM, 1000)
@@ -96,7 +96,7 @@ try:
 	# Configura el servidor
 	# ----------------------------------------------------------------------
 	server_host = '192.168.0.44'  # Escucha en todas las interfaces de red
-	server_port = 12340  # Puerto de escucha (puedes usar cualquier número de puerto)
+	server_port = 12344  # Puerto de escucha (puedes usar cualquier número de puerto)
 	print(f"Esperando conexiones en {server_host}:{server_port}")
 	
 	# Crea el socket del servidor
@@ -126,6 +126,7 @@ try:
 		parametros = datos.get("parametros", {})
 
 		#Parte de Control
+		
 		if comando == "PropiedadesControl":
 			# Posición deseada encoder
 			pd = parametros["pd"]
@@ -133,25 +134,17 @@ try:
 			kp = parametros["kp"]
 			kd = parametros["kd"]
 			# Tiempo Simulación
-			tSimulacion = parametros["t"]
-			# Opcion de reinicio
-			rein = parametros["rein"]
-		print(type(pd))
-		print(type(kp))
-		print(type(tSimulacion))
-		print(type(rein))
-		print(rein)
+			tSimulacion = parametros["t"]	
 
 		#Inicializar listas, (tiempo,posicion,AccionControl,posicionDeseada y error)
-		tiempo=[]
+		tiempo=[]		
 		pos = []
 		control = []
-		pdPlot=[]
+		pdPlot=[]	
 		errorPlot = []
 
 		# Reinicio Variables globales
-		if(rein):
-			 posicion = 0
+		# ~ posicion = 0
 
 		# Inicializar PWM
 		rpwm.start(0)
@@ -180,8 +173,7 @@ try:
 
 			# Ley de control
 			u = kp*error+kd*dError
-			print(u)
-			sleep(1)
+
 			#Saturación
 			if(abs(u)>10):
 				u=10
@@ -191,19 +183,19 @@ try:
 				direccion=-1
 			else:
 				direccion=1
-
+				
 			# Llamada al control de motores
-			setMotor(direccion,abs(u))
+			setMotor(direccion,abs(u))	
 
 			if(i==1):
 				i+=1
 				t += 0
 			else:
 				t += deltaTiempo
-
+					
 			print("Tiempo = ",t)
 			tiempo.append(t)		#Añade el tiempo
-
+				
 			# Imprimir la posición actual del encoder
 			print("Posición:", posicion)
 			pos.append(posicion)		# Añadir a la lista la posicion actual
@@ -218,8 +210,9 @@ try:
 			control.append(u)		# Añade la acción de control
 
 			sleep(0.1)	# Para evitar problemas de lectura de datos
-		setMotor(direccion,0)
-		#muestraGraficas(tiempo,pos,pdPlot,control,errorPlot)
+
+		#
+muestraGraficas(tiempo,pos,pdPlot,control,errorPlot)
 
 except KeyboardInterrupt:
 	pass
