@@ -3,6 +3,7 @@ from time import sleep,time
 import json
 import msvcrt
 import os
+import matplotlib.pyplot as plt
 
 # IMPORTANTE #
 #Hasta ahora no he podido ver como eliminar las graficas asi que se necesita realizar un comentario con el comando nano
@@ -12,23 +13,43 @@ import os
 # Por ultimo correr el programa 
 # sudo python3 ConnecionConControlRasp.py
 
-# Definir los datos como un diccionario de Python
-datos_a_enviar = {
-    "comando": "ENCENDER_LED",
-    "parametros": {
-        "led": "LED1"
-    }
-}
-
-# Convertir los datos a una cadena JSON
-datos_json = json.dumps(datos_a_enviar)
-
-# Envía la cadena JSON a la Raspberry Pi (por ejemplo, a través de Bluetooth, Wi-Fi o cualquier otro medio de comunicación)
-
+def muestraGraficas(tiempo,pos,pdPlot,control,errorPlot):
+	#Zona de Graficas
+	plt.figure(1)
+	plt.plot(tiempo,pos,label='Posición Actual', color='blue',linestyle = '-')
+	plt.plot(tiempo,pdPlot,label='Posición Deseada', color='red',linestyle='--')
+	# ~ plt.ylim(-100,100)
+	# ~ plt.axis([xmin,xmax,ymin,ymax])
+	plt.title("Grafica Posición")
+	plt.xlabel("Tiempo")
+	plt.ylabel("Posición")
+	plt.legend()
+	plt.grid(True)
+	
+	plt.figure(2)
+	plt.plot(tiempo,control, color='blue',linestyle = '-')
+	plt.title("Grafica Accion de Control")
+	plt.xlabel("Tiempo")
+	plt.ylabel("Acción de Control")
+	plt.grid(True)
+	
+	plt.figure(3)
+	plt.plot(tiempo,errorPlot, color='blue',linestyle = '-')
+	plt.title("Grafica Error")
+	plt.xlabel("Tiempo")
+	plt.ylabel("Error")
+	plt.grid(True)
+	
+	#Muestra las graficas
+	plt.show()
+	
+	#	sleep(1)
+	plt.close("all")
+# -----------------------------------------------------------------------
 
 # Configura el cliente
 server_host = '192.168.0.44'  # La dirección IP de la Raspberry Pi en la red local
-server_port = 1341  # Puerto de escucha (debe coincidir con el puerto del servidor)
+server_port = 1342  # Puerto de escucha (debe coincidir con el puerto del servidor)
 
 # Crea el socket del cliente
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -65,6 +86,33 @@ try:
 
         # Enviar los datos al servidor (Raspberry Pi)
         client_socket.send(datos_json.encode())
+        
+        # Datos recibidos
+        # -------------------------------------------------------------------------
+        data = client_socket.recv(1024).decode()
+		
+        #Si se desconecta el cliente
+        if not data:
+            print("El cliente se ha desconectado")
+            break
+            
+        # Cargar los datos recibidos en estructura Python de Json
+        datos = json.loads(data)
+
+        # Procesar los datos según el tipo de comando
+        comando = datos["comando"]
+        parametros = datos.get("parametros", {})
+
+        #Parte de Control
+        if comando == "Graficas":
+            tiempo =  [tiempo]
+            pos = [pos]
+            pdPlot = [pdPlot]
+            control = [control]
+            errorPlot = [errorPlot]
+        # -------------------------------------------------------------------------
+
+        muestraGraficas(tiempo,pos,pdPlot,control,errorPlot)
 
         print("Presiona una tecla para continuar o esc (escape) para salir")
         tecla = msvcrt.getch()  # Espera hasta que se presione una tecla
