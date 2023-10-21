@@ -8,7 +8,7 @@ import os
 #Hasta ahora no he podido ver como eliminar las graficas asi que se necesita realizar un comentario con el comando nano
 # cd ProyectoModular
 # nano ConnecionConControlRasp.py
-# Comentar la funcion al final del while con un # y guardarlo con ctr+O
+# Comentar la funcion al final del while con un # y guardarlo con ctr+O y enter
 # Por ultimo correr el programa 
 # sudo python3 ConnecionConControlRasp.py
 
