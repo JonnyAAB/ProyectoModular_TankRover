@@ -59,6 +59,9 @@ def muestraGraficas(tiempo,pos,pdPlot,control,errorPlot):
 	
 	#Muestra las graficas
 	plt.show()
+	
+	#	sleep(1)
+	plt.close("all")
 # -----------------------------------------------------------------------
 
 try:
@@ -93,7 +96,7 @@ try:
 	# Configura el servidor
 	# ----------------------------------------------------------------------
 	server_host = '192.168.0.44'  # Escucha en todas las interfaces de red
-	server_port = 12346  # Puerto de escucha (puedes usar cualquier número de puerto)
+	server_port = 12344  # Puerto de escucha (puedes usar cualquier número de puerto)
 	print(f"Esperando conexiones en {server_host}:{server_port}")
 	
 	# Crea el socket del servidor
@@ -208,13 +211,16 @@ try:
 
 			sleep(0.1)	# Para evitar problemas de lectura de datos
 
-		muestraGraficas(tiempo,pos,pdPlot,control,errorPlot)
+		#muestraGraficas(tiempo,pos,pdPlot,control,errorPlot)
 
 except KeyboardInterrupt:
 	pass
 
 finally:
 	# Detener PWM y limpiar GPIO
+	print("Cerrando conexiones...")
+	print("Adios :D")
+	sleep(2)
 	rpwm.stop()
 	lpwm.stop()
 	en_pwm.stop()
