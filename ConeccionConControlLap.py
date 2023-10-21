@@ -28,12 +28,12 @@ datos_json = json.dumps(datos_a_enviar)
 
 # Configura el cliente
 server_host = '192.168.0.44'  # La dirección IP de la Raspberry Pi en la red local
-server_port = 12344  # Puerto de escucha (debe coincidir con el puerto del servidor)
+server_port = 12340  # Puerto de escucha (debe coincidir con el puerto del servidor)
 
 # Crea el socket del cliente
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect((server_host, server_port))
-
+i=0
 try:
     while True:
         # Definir los datos a enviar en formato JSON
@@ -41,14 +41,22 @@ try:
         kp = float(input("Ingrese kp: "))
         kd = float(input("Ingrese kd: "))
         t = int(input("Ingrese tiempo simulación: "))
-
+        if i>=1:
+            rein = bool(input("Quiere reiniciar la posición (1:si, 0:no): "))
+            if rein>=1:
+                rein = True
+            else:
+                rein = False
+        else:
+            rein = False
         datos_a_enviar = {
             "comando": "PropiedadesControl",
             "parametros": {
                 "pd": pd,
                 "kp": kd,
                 "kd": kp,
-                "t" : t
+                "t" : t,
+                "rein":rein
             }
         }
 
@@ -66,7 +74,7 @@ try:
             break
         else:
             print("Continuando después de presionar una tecla.")
-
+        i=i+1
         os.system('cls')
 
 
