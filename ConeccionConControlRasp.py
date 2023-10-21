@@ -151,7 +151,7 @@ try:
 
 		# Reinicio Variables globales
 		if(rein):
-			 posicion = 0
+			posicion = 0
 
 		# Inicializar PWM
 		rpwm.start(0)
