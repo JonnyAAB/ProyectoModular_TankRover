@@ -12,12 +12,12 @@ import matplotlib.pyplot as plt
 
 #Parte de Control
 # Posición deseada encoder
-pd = 100
+pd =-100
 #Ganancias
-kp = .09
+kp = 10
 kd = 0.005
 
-tSimulacion = 10		# Tiempo Simulación
+tSimulacion = 20		# Tiempo Simulación
 
 #Inicializar listas, (tiempo,posicion,AccionControl,posicionDeseada y error)
 tiempo=[]		

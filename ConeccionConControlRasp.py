@@ -184,15 +184,17 @@ try:
 			print(u)
 #			sleep(1)
 
-			#Saturación
-			if(abs(u)>10):
-				u=10
-
 			# Cambio de dirección dependiendo la ley de control
 			if(u<0):
 				direccion=-1
 			else:
 				direccion=1
+
+			#Saturacion
+			if(abs(u)>15):
+				u=15
+			else:
+				u=abs(u)
 
 			# Llamada al control de motores
 			setMotor(direccion,abs(u))
