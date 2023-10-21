@@ -96,16 +96,16 @@ try:
 		# Ley de control
 		u = kp*error+kd*dError
 		
-		#Saturación
-		if(abs(u)>10):
-			u=15
-		
 		# Cambio de dirección dependiendo la ley de control
 		if(u<0):
 			direccion=-1
 		else:
 			direccion=1
-			
+
+		#Saturación
+		if(abs(u)>10):
+			u=15
+		
 		# Llamada al control de motores
 		setMotor(direccion,abs(u))	
 		
