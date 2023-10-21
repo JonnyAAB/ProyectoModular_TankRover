@@ -85,7 +85,7 @@ try:
 	GPIO.setup(ENCODER_B, GPIO.IN)
 
 	# Configuracion que detecta flancos, bouncetiem dice que tan rapido lee el encoder
-	GPIO.add_event_detect(ENCODER_A, GPIO.RISING, callback=actualizar_posicion,bouncetime= 50)
+	GPIO.add_event_detect(ENCODER_A, GPIO.RISING, callback=actualizar_posicion,bouncetime= 100)
 
 	# Crear objetos PWM
 	rpwm = GPIO.PWM(RPWM, 1000)
@@ -96,7 +96,7 @@ try:
 	# Configura el servidor
 	# ----------------------------------------------------------------------
 	server_host = '192.168.0.44'  # Escucha en todas las interfaces de red
-	server_port = 12340  # Puerto de escucha (puedes usar cualquier número de puerto)
+	server_port = 1341  # Puerto de escucha (puedes usar cualquier número de puerto)
 	print(f"Esperando conexiones en {server_host}:{server_port}")
 	
 	# Crea el socket del servidor
@@ -136,12 +136,13 @@ try:
 			tSimulacion = parametros["t"]
 			# Opcion de reinicio
 			rein = parametros["rein"]
-		print(type(pd))
-		print(type(kp))
-		print(type(tSimulacion))
+		print(type(pd),f"pd= {pd} ")
+		print(type(kp), f"kp = {kp}")
+		print(type(kd), f"kd= {kd}")
+		print(type(tSimulacion),f"tSim = {tSimulacion}")
 		print(type(rein))
 		print(rein)
-
+#		sleep(50)
 		#Inicializar listas, (tiempo,posicion,AccionControl,posicionDeseada y error)
 		tiempo=[]
 		pos = []
@@ -181,7 +182,8 @@ try:
 			# Ley de control
 			u = kp*error+kd*dError
 			print(u)
-			sleep(1)
+#			sleep(1)
+
 			#Saturación
 			if(abs(u)>10):
 				u=10
