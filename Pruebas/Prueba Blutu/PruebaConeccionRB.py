@@ -1,12 +1,9 @@
 import socket
 import json
 
-
-
-
 # Configura el servidor
 server_host = '192.168.0.44'  # Escucha en todas las interfaces de red
-server_port = 12345  # Puerto de escucha (puedes usar cualquier número de puerto)
+server_port = 12346  # Puerto de escucha (puedes usar cualquier número de puerto)
 
 # Crea el socket del servidor
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -22,26 +19,24 @@ print(f"Conectado a {client_address}")
 try:
     # Lee y procesa los datos recibidos
     while True:
-        data = client_socket.recv(1024)
-        # ~ if not data:
-            # ~ break
-        texto = data.decode()
-        print(texto)
-        # ~ print("Datos recibidos:", data.decode())
-        # Recibir la cadena JSON (por ejemplo, a través de sockets, Bluetooth, etc.)
-        datos_recibidos = "..."  # Aquí deberías asignar la cadena recibida
-
-        # Convertir la cadena JSON a una estructura de datos de Python
-        datos = json.loads(datos_recibidos)
+        # Recibir los datos enviados
+        data = client_socket.recv(1024).decode()
+        
+        # Cargar los datos recibidos en estructura Python de Json
+        datos = json.loads(data)
 
         # Procesar los datos según el tipo de comando
         comando = datos["comando"]
-        parametros = datos["parametros"]
+        parametros = datos.get("parametros", {})
 
-        if comando == "ENCENDER_LED":
-            led = parametros["led"]
-            print("Asi se mandan datos")
+        if comando == "Propiedades del Controo":
+            pd = parametros["pd"]
+            kp = parametros["kp"]
+            kd = parametros["kd"]
+            tiempo = parametros["tiempo"]
+            
             # Realiza la acción correspondiente, como encender el LED
+            print("Asi se mandan datos ", pd, " ", kp, " ", kd, "Suma: ", pd+kp+kd)
         
         # Procesa los datos según tus necesidades
 except KeyboardInterrupt:
