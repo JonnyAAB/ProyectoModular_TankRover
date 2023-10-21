@@ -1,6 +1,8 @@
 import socket
 from time import sleep,time
 import json
+import msvcrt
+import os
 
 # Definir los datos como un diccionario de Python
 datos_a_enviar = {
@@ -27,12 +29,18 @@ client_socket.connect((server_host, server_port))
 try:
     while True:
         # Definir los datos a enviar en formato JSON
+        pd = int(input("Ingrese posición deseada: "))
+        kp = float(input("Ingrese kp: "))
+        kd = float(input("Ingrese kd: "))
+        t = int(input("Ingrese tiempo simulación: "))
+
         datos_a_enviar = {
-            "comando": "ENCENDER_LED",
+            "comando": "PropiedadesControl",
             "parametros": {
-                "pd": 32,
-                "kp": 0.4,
-                "kd": 0.1
+                "pd": pd,
+                "kp": kd,
+                "kd": kp,
+                "t" : t
             }
         }
 
@@ -41,7 +49,16 @@ try:
 
         # Enviar los datos al servidor (Raspberry Pi)
         client_socket.send(datos_json.encode())
-        sleep(1)
+
+        print("Presiona una tecla para continuar o esc (escape) para salir")
+        tecla = msvcrt.getch()  # Espera hasta que se presione una tecla
+        if tecla == b'\x1b':  # Verifica si se presionó la tecla "Esc" (valor ASCII '\x1b')
+            print("Saliendo del programa.")
+            break
+        else:
+            print("Continuando después de presionar una tecla.")
+
+        os.system('cls')
 
 
 except KeyboardInterrupt:
