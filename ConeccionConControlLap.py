@@ -4,6 +4,14 @@ import json
 import msvcrt
 import os
 
+# IMPORTANTE #
+#Hasta ahora no he podido ver como eliminar las graficas asi que se necesita realizar un comentario con el comando nano
+# cd ProyectoModular
+# nano ConnecionConControlRasp.py
+# Comentar la funcion al final del while con un # y guardarlo con ctr+O y enter
+# Por ultimo correr el programa 
+# sudo python3 ConnecionConControlRasp.py
+
 # Definir los datos como un diccionario de Python
 datos_a_enviar = {
     "comando": "ENCENDER_LED",
@@ -20,7 +28,7 @@ datos_json = json.dumps(datos_a_enviar)
 
 # Configura el cliente
 server_host = '192.168.0.44'  # La dirección IP de la Raspberry Pi en la red local
-server_port = 12346  # Puerto de escucha (debe coincidir con el puerto del servidor)
+server_port = 12344  # Puerto de escucha (debe coincidir con el puerto del servidor)
 
 # Crea el socket del cliente
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -54,6 +62,7 @@ try:
         tecla = msvcrt.getch()  # Espera hasta que se presione una tecla
         if tecla == b'\x1b':  # Verifica si se presionó la tecla "Esc" (valor ASCII '\x1b')
             print("Saliendo del programa.")
+            client_socket.close()
             break
         else:
             print("Continuando después de presionar una tecla.")
