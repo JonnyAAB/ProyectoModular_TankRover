@@ -1,9 +1,13 @@
 import socket
 import json
 
-# Crear un socket del cliente
+# Configura el cliente
+server_host = '192.168.0.44'  # La dirección IP de la Raspberry Pi en la red local
+server_port = 1342  # Puerto de escucha (debe coincidir con el puerto del servidor)
+
+# Crea el socket del cliente
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client_socket.connect(("IP_DEL_SERVIDOR", 12345))  # Reemplaza "IP_DEL_SERVIDOR" por la dirección IP del servidor
+client_socket.connect((server_host, server_port))
 
 # Recibir los datos del servidor
 received_data = client_socket.recv(1024).decode()

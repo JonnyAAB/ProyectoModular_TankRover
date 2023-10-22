@@ -1,13 +1,21 @@
 import socket
 import json
 
-# Crear un socket del servidor
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind(("0.0.0.0", 12345))  # Enlazar a una dirección y puerto
-server_socket.listen(1)  # Escuchar una conexión
+# Configura el servidor
+# ----------------------------------------------------------------------
+server_host = '192.168.0.44'  # Escucha en todas las interfaces de red
+server_port = 1342  # Puerto de escucha (puedes usar cualquier número de puerto)
+print(f"Esperando conexiones en {server_host}:{server_port}")
 
-print("Esperando una conexión...")
+# Crea el socket del servidor
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server_socket.bind((server_host, server_port))
+server_socket.listen(1)  # Acepta una sola conexión entrante
+
+# Acepta una conexión entrante
 client_socket, client_address = server_socket.accept()
+print(f"Conectado a {client_address}")
+# ----------------------------------------------------------------------
 
 # Lista que deseas enviar al cliente
 data_to_send = [1, 2, 3, 4, 5]
