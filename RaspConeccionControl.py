@@ -224,22 +224,23 @@ try:
 			sleep(0.1)	# Para evitar problemas de lectura de datos
 		setMotor(direccion,0)
 
+		# Datos que deseas enviar al cliente (en formato de diccionario)
 		datos_a_enviar = {
-            "comando": "Graficas",
-            "parametros": {
-                "tiempo": tiempo,
-                "pos": pos,
-                "pdPlot": pdPlot,
-                "control" : control,
-                "errorPlot":errorPlot
-            }
+			"comando": "Graficas",
+			"parametros": {
+				"tiempo": tiempo,
+				"pos": pos,
+				"pdPlot": pdPlot,
+				"control": control,
+				"errorPlot": errorPlot
 			}
+		}
 
-		# Convertir la lista a JSON
-		data_json = json.dumps(datos_a_enviar)
+		# Convertir los datos a JSON
+		datos_json = json.dumps(datos_a_enviar)
 
 		# Enviar los datos al cliente
-		client_socket.send(data_json.encode())
+		client_socket.send(datos_json.encode())
 
 		sleep(.1)
 		#muestraGraficas(tiempo,pos,pdPlot,control,errorPlot)

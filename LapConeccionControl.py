@@ -89,27 +89,23 @@ try:
         
         # Datos recibidos
         # -------------------------------------------------------------------------
-        data = client_socket.recv(1024).decode()
-		
-        #Si se desconecta el cliente
-        if not data:
-            print("El cliente se ha desconectado")
-            break
-            
-        # Cargar los datos recibidos en estructura Python de Json
-        datos = json.loads(data)
+        # Recibir los datos del servidor
+        datos_recibidos = client_socket.recv(1024).decode()
 
-        # Procesar los datos según el tipo de comando
-        comando = datos["comando"]
-        parametros = datos.get("parametros", {})
+        # Convertir los datos JSON a un diccionario
+        datos_dict = json.loads(datos_recibidos)
+
+        # Acceder a los datos recibidos
+        comando = datos_dict["comando"]
+        parametros = datos_dict["parametros"]
 
         #Parte de Control
         if comando == "Graficas":
-            tiempo =  [tiempo]
-            pos = [pos]
-            pdPlot = [pdPlot]
-            control = [control]
-            errorPlot = [errorPlot]
+            tiempo = parametros["tiempo"]
+            pos = parametros["pos"]
+            pdPlot = parametros["pdPlot"]
+            control = parametros["control"]
+            errorPlot = parametros["errorPlot"]
         # -------------------------------------------------------------------------
 
         muestraGraficas(tiempo,pos,pdPlot,control,errorPlot)
