@@ -237,11 +237,25 @@ try:
 		}
 
 		# Convertir los datos a JSON
-		datos_json = json.dumps(datos_a_enviar)
+		data_json = json.dumps(datos_a_enviar)
+		data_length = len(data_json)
 
-		# Enviar los datos al cliente
-		client_socket.send(datos_json.encode())
+		# Enviar la longitud de los datos
+		client_socket.send(str(data_length).encode())
 
+		# Recibir confirmación del cliente (opcional)
+		client_socket.recv(1024)
+
+		# Enviar los datos en fragmentos
+		chunk_size = 1024  # Tamaño del fragmento
+		sent = 0
+
+		while sent < data_length:
+			chunk = data_json[sent:sent + chunk_size]
+			client_socket.send(chunk.encode())
+			sent += len(chunk)
+
+		print("Datos enviados.")
 		sleep(.1)
 		#muestraGraficas(tiempo,pos,pdPlot,control,errorPlot)
 

@@ -90,15 +90,28 @@ try:
         # Datos recibidos
         # -------------------------------------------------------------------------
         # Recibir los datos del servidor
-        datos_recibidos = client_socket.recv(1024).decode()
+        # Recibir la longitud de los datos
+        data_length = int(client_socket.recv(1024).decode())
 
-        # Convertir los datos JSON a un diccionario
-        datos_dict = json.loads(datos_recibidos)
+        # Enviar confirmación al servidor (opcional)
+        client_socket.send("OK".encode())
 
-        # Acceder a los datos recibidos
-        comando = datos_dict["comando"]
-        parametros = datos_dict["parametros"]
+        # Recibir los datos en fragmentos
+        received_data = ''
+        received = 0
 
+        while received < data_length:
+            chunk = client_socket.recv(1024).decode()
+            received_data += chunk
+            received += len(chunk)
+
+        # Desempaquetar los datos
+        data_received = json.loads(received_data)
+
+        # Acceder a los datos
+        comando = data_received["comando"]
+        parametros = data_received["parametros"]
+        
         #Parte de Control
         if comando == "Graficas":
             tiempo = parametros["tiempo"]
@@ -126,4 +139,5 @@ except KeyboardInterrupt:
     pass
 
 finally:
+    print("Cerrando cliente")
     client_socket.close()
