@@ -110,7 +110,7 @@ try:
 	# ----------------------------------------------------------------------
 
 	while True:
-		# Datos recividos
+		# Datos recibidos
 		data = client_socket.recv(1024).decode()
 		
 		#Si se desconecta el cliente
@@ -240,7 +240,8 @@ try:
 
 		# Enviar los datos al cliente
 		client_socket.send(data_json.encode())
-		
+
+		sleep(.1)
 		#muestraGraficas(tiempo,pos,pdPlot,control,errorPlot)
 
 except KeyboardInterrupt:
