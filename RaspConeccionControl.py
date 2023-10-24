@@ -20,7 +20,7 @@ def actualizar_posicion(channel):
             posicion += 1
         else:					#Sino pos se movió para atras
             posicion -= 1
-    print("Posición:", posicion)
+    print("Posición:", posicion)	# Imprime la posición actual
     
 def setMotor(direccion,u):
 	if(direccion==1):
