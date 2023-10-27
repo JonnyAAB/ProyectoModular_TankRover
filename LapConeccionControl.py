@@ -6,12 +6,12 @@ import os
 import matplotlib.pyplot as plt
 
 # IMPORTANTE #
-#Hasta ahora no he podido ver como eliminar las graficas asi que se necesita realizar un comentario con el comando nano
+# Hasta ahora no he podido ver como eliminar las graficas asi que se necesita realizar un comentario con el comando nano (Ya no importa esta wea, imprimo aqui xD)
 # cd ProyectoModular
 # nano ConnecionConControlRasp.py
 # Comentar la funcion al final del while con un # y guardarlo con ctr+O y enter
 # Por ultimo correr el programa 
-# sudo python3 ConnecionConControlRasp.py
+# sudo python3 RaspConeccionControl.py
 
 def muestraGraficas(tiempo,pos,pdPlot,control,errorPlot):
 	#Zona de Graficas
@@ -45,16 +45,19 @@ def muestraGraficas(tiempo,pos,pdPlot,control,errorPlot):
 	
 	#	sleep(1)
 	plt.close("all")
-# -----------------------------------------------------------------------
+# # -----------------------------------------------------------------------
 
 # Configura el cliente
-server_host = '192.168.0.44'  # La dirección IP de la Raspberry Pi en la red local
-server_port = 1342  # Puerto de escucha (debe coincidir con el puerto del servidor)
+server_host = '192.168.10.60'  # La dirección IP de la Raspberry Pi en la red local
+server_port = 1342  # Puerto de escucha (debe coincidir con el puerto del servidor), 
+                    # puede ser cualquier puerto solo tienen que coincidir y que no se este utilizando
 
 # Crea el socket del cliente
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect((server_host, server_port))
-i=0
+
+i=False  # Operador auxiliar para reinicio de posición
+
 try:
     while True:
         # Definir los datos a enviar en formato JSON
@@ -62,7 +65,7 @@ try:
         kp = float(input("Ingrese kp: "))
         kd = float(input("Ingrese kd: "))
         t = int(input("Ingrese tiempo simulación: "))
-        if i>=1:
+        if i:
             rein = int(input("Quiere reiniciar la posición (1:si, 0:no): "))
             if rein>=1:
                 rein = True
@@ -112,7 +115,7 @@ try:
         comando = data_received["comando"]
         parametros = data_received["parametros"]
         
-        #Parte de Control
+        # Obteniendo datos de las listas
         if comando == "Graficas":
             tiempo = parametros["tiempo"]
             pos = parametros["pos"]
@@ -121,8 +124,10 @@ try:
             errorPlot = parametros["errorPlot"]
         # -------------------------------------------------------------------------
 
+        # Mandamos a llamar a la función de graficas
         muestraGraficas(tiempo,pos,pdPlot,control,errorPlot)
 
+        # Logica para seguir con el programa o salirse del bucle
         print("Presiona una tecla para continuar o esc (escape) para salir")
         tecla = msvcrt.getch()  # Espera hasta que se presione una tecla
         if tecla == b'\x1b':  # Verifica si se presionó la tecla "Esc" (valor ASCII '\x1b')
@@ -131,8 +136,11 @@ try:
             break
         else:
             print("Continuando después de presionar una tecla.")
-        i=i+1
-        os.system('cls')
+        
+        # Variable auxiliar para habilitar el reincio de la posición
+        i=True
+
+        os.system('cls')    # Limpia la consola
 
 
 except KeyboardInterrupt:
