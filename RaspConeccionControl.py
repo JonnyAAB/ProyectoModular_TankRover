@@ -95,7 +95,7 @@ try:
 
 	# Configura el servidor
 	# ----------------------------------------------------------------------
-	server_host = '192.168.0.44'  # Escucha en todas las interfaces de red
+	server_host = '192.168.8.236'  # Escucha en todas las interfaces de red
 	server_port = 1342  # Puerto de escucha (puedes usar cualquier número de puerto)
 	print(f"Esperando conexiones en {server_host}:{server_port}")
 	
