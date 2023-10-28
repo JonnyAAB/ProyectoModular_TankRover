@@ -70,17 +70,16 @@ try:
     while True:
         for event in pygame.event.get():
             if event.type == pygame.JOYBUTTONDOWN:
-                if event.button == 6:           # Si back es presionado se sale de la función
+                if event.button == 0:           # Si back es presionado se sale de la función
                     break
             elif event.type == pygame.JOYAXISMOTION:
                     if event.axis == 4:  # Gatillo izquierdo
                         left_trigger = event.value
                         u = normalizar_valor(left_trigger)
                         if u <= 0.009:
-                            setMotor(1, 0)
+                            setMotor(0, 0)
                         else:
-                             setMotor(1,u)
-                        setMotor(0,u)
+                             setMotor(0,u)
                         
                     elif event.axis == 5:  # Gatillo derecho
                         right_trigger = event.value
