@@ -74,6 +74,7 @@ def muestraGraficas(tiempo,pos,pdPlot,control,errorPlot):
 try:
 	# Variables globales
 	posicion = 0
+	posicion2 = 0
 
 	# Configuración Rasp
 	# -----------------------------------------------------------------------------------
