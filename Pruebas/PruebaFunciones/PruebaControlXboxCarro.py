@@ -1,6 +1,6 @@
 import pygame
 import RPi.GPIO as GPIO
-
+from time import sleep
 
 def actualizar_posicion(channel):
     global posicion
@@ -69,8 +69,9 @@ try:
     # -----------------------------------------------------------------------------------------
     while True:
         for event in pygame.event.get():
-            if event.button == 6:           # Si back es presionado se sale de la función
-                break
+            if event.type == pygame.JOYBUTTONDOWN:
+                if event.button == 6:           # Si back es presionado se sale de la función
+                    break
             
             # Lectura de los valores de los sticks analógicos
             left_stick_x = joystick.get_axis(0)  # Stick izquierdo, eje X, -1 izquierdo 1 derecho
