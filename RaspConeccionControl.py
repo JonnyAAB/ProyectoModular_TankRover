@@ -84,8 +84,8 @@ try:
 	EN_PWM = 35
 	ENCODER_A = 11
 	ENCODER_B = 13
-	ENCODER_A2 = 15
-	ENCODER_B2 = 16
+	ENCODER_A2 = 16
+	ENCODER_B2 = 15
 	# Configuración de Raspberry Pi GPIO
 	GPIO.setmode(GPIO.BOARD)
 	GPIO.setup(RPWM, GPIO.OUT)
@@ -185,7 +185,9 @@ try:
 			tiempoAnterior = tiempoActual			# El tiempo anterior se convierte en el actual
 
 			#Calculo parte derivativa
-			error = pd-((posicion+posicion2)/2)				# Calculo del error
+			mediaEncoder = (posicion + posicion2)/2
+			
+			error = pd-mediaEncoder				# Calculo del error
 			dError = (error-errorAnt)/deltaTiempo		# Derivada del tiempo
 			errorAnt = error				
 
@@ -206,7 +208,7 @@ try:
 				u=abs(u)
 
 			# Llamada al control de motores
-			setMotor(direccion,abs(u)
+			setMotor(direccion,abs(u))
 
 			if i==1:
 				i+=1
@@ -224,11 +226,11 @@ try:
 			pdPlot.append(pd)		# Añade a la lista la posición deseada
 
 			# Imprimir error
-#			print("Error: ",error)
+			print("Error: ",error)
 			errorPlot.append(error)		# Añade el error
 
 			#Imprimir control
-#			print("El control es de: ",u)
+			print("El control es de: ",u)
 			control.append(u)		# Añade la acción de control
 
 			sleep(0.1)	# Para evitar problemas de lectura de datos
