@@ -72,20 +72,20 @@ try:
             if event.type == pygame.JOYBUTTONDOWN:
                 if event.button == 6:           # Si back es presionado se sale de la función
                     break
+
             elif event.type == pygame.JOYAXISMOTION:
                     if event.axis == 4:  # Gatillo izquierdo
                         left_trigger = event.value
                         u = normalizar_valor(left_trigger)
-                        if u <= 0.009:
-                            setMotor(1, 0)
+                        if u <= 0.09:
+                            setMotor(0, 0)
                         else:
-                             setMotor(1,u)
-                        setMotor(0,u)
-                        
+                             setMotor(0,u)
+
                     elif event.axis == 5:  # Gatillo derecho
                         right_trigger = event.value
                         u = normalizar_valor(right_trigger)
-                        if u <= 0.009:
+                        if u <= 0.09:
                             setMotor(1, 0)
                         else:
                              setMotor(1,u)
@@ -95,12 +95,6 @@ try:
             # left_stick_y = joystick.get_axis(1)  # Stick izquierdo, eje Y, -1 arriba 1 abajo
             # right_stick_x = joystick.get_axis(2)  # Stick derecho, eje Y, -1 arriba 1 abajo
             # right_stick_y = joystick.get_axis(3)  # Stick derecho, eje X, -1 izquierdo 1 derecho
-
-            
-                
-            
-        
-
 
 except KeyboardInterrupt:
     pass
