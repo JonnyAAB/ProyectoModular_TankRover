@@ -74,6 +74,7 @@ def muestraGraficas(tiempo,pos,pdPlot,control,errorPlot):
 try:
 	# Variables globales
 	posicion = 0
+	posicion2 = 0
 
 	# Configuración Rasp
 	# -----------------------------------------------------------------------------------
@@ -108,7 +109,7 @@ try:
 
 	# Configura el servidor
 	# ----------------------------------------------------------------------
-	server_host = '192.168.8.236'  # Escucha en todas las interfaces de red
+	server_host = '192.168.0.44'  # Escucha en todas las interfaces de red
 	server_port = 1342  # Puerto de escucha (puedes usar cualquier número de puerto)
 	print(f"Esperando conexiones en {server_host}:{server_port}")
 	
@@ -149,12 +150,7 @@ try:
 			tSimulacion = parametros["t"]
 			# Opcion de reinicio
 			rein = parametros["rein"]
-		print(type(pd),f"pd= {pd} ")
-		print(type(kp), f"kp = {kp}")
-		print(type(kd), f"kd= {kd}")
-		print(type(tSimulacion),f"tSim = {tSimulacion}")
-		print(type(rein))
-		print(rein)
+
 #		sleep(50)
 		#Inicializar listas, (tiempo,posicion,AccionControl,posicionDeseada y error)
 		tiempo=[]
@@ -195,7 +191,6 @@ try:
 
 			# Ley de control
 			u = kp*error+kd*dError
-			print(u)
 #			sleep(1)
 
 			# Cambio de dirección dependiendo la ley de control
@@ -205,15 +200,15 @@ try:
 				direccion=1
 
 			#Saturacion
-			if(abs(u)>55):
-				u=55
+			if(abs(u)>10):
+				u=10
 			else:
 				u=abs(u)
 
 			# Llamada al control de motores
-			setMotor(direccion,abs(u))
+			setMotor(direccion,abs(u)
 
-			if(i==1):
+			if i==1:
 				i+=1
 				t += 0
 			else:
@@ -223,16 +218,17 @@ try:
 			tiempo.append(t)		#Añade el tiempo
 
 			# Imprimir la posición actual del encoder
-			print("Posición:", posicion)
-			pos.append(posicion)		# Añadir a la lista la posicion actual
+			print("Posición encoder 1:", posicion)
+			print("Posicion encoder 2:", posicion2)
+			pos.append((posicion+posicion2)/2)		# Añadir a la lista la posicion actual
 			pdPlot.append(pd)		# Añade a la lista la posición deseada
 
 			# Imprimir error
-			print("Error: ",error)
+#			print("Error: ",error)
 			errorPlot.append(error)		# Añade el error
 
 			#Imprimir control
-			print("El control es de: ",u)
+#			print("El control es de: ",u)
 			control.append(u)		# Añade la acción de control
 
 			sleep(0.1)	# Para evitar problemas de lectura de datos
