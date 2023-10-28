@@ -85,7 +85,7 @@ try:
                     setMotor(0,normalizar_valor(left_trigger))
                 elif event.axis == 5:  # Gatillo derecho
                     right_trigger = event.value                    
-                    setMotor(1,print(normalizar_valor(right_trigger)))
+                    setMotor(1,normalizar_valor(right_trigger))
                 
             
         
