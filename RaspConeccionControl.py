@@ -183,10 +183,11 @@ try:
 			tiempoActual=time()
 			deltaTiempo = tiempoActual-tiempoAnterior	#Diferencia de tiempo
 			tiempoAnterior = tiempoActual			# El tiempo anterior se convierte en el actual
-
-			#Calculo parte derivativa
+			
+			#Calculo distancia
 			mediaEncoder = (posicion + posicion2)/2
 			
+			#Calculo parte derivativa
 			error = pd-mediaEncoder				# Calculo del error
 			dError = (error-errorAnt)/deltaTiempo		# Derivada del tiempo
 			errorAnt = error				
