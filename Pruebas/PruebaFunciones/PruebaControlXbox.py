@@ -2,6 +2,11 @@ import pygame
 import os
 import time
 
+
+def normalizar_valor(valor_original):
+    valor_normalizado = ((valor_original - (-1)) / (2)) * 60
+    return abs(valor_normalizado)
+
 # Inicializa Pygame
 pygame.init()
 
@@ -24,6 +29,7 @@ if pygame.joystick.get_count() > 0:
                 elif event.axis == 5:  # Gatillo derecho
                     right_trigger = event.value
                     print(f"Gatillo Derecho: {right_trigger}")
+                    print(normalizar_valor(right_trigger))
     #     for event in pygame.event.get():
     #         if event.type == pygame.QUIT:
     #             pygame.quit()
