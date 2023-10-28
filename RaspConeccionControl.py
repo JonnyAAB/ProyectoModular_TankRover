@@ -20,8 +20,15 @@ def actualizar_posicion(channel):
             posicion += 1
         else:					#Sino pos se movió para atras
             posicion -= 1
-    print("Posición:", posicion)	# Imprime la posición actual
-    
+
+def actualizar_posicion2(channel):
+    global posicion2
+    if GPIO.input(ENCODER_A2) == GPIO.HIGH:	#Cuando detecta el flanco A 
+        if GPIO.input(ENCODER_B2) == GPIO.LOW:	#Si el flanco B esta abajo, se movió hacia adelante
+            posicion2 += 1
+        else:					#Sino pos se movió para atras
+            posicion2 -= 1
+
 def setMotor(direccion,u):
 	if(direccion==1):
 		rpwm.ChangeDutyCycle(abs(u))  # ajusta según el control
@@ -76,6 +83,8 @@ try:
 	EN_PWM = 35
 	ENCODER_A = 11
 	ENCODER_B = 13
+	ENCODER_A2 = 15
+	ENCODER_B2 = 16
 	# Configuración de Raspberry Pi GPIO
 	GPIO.setmode(GPIO.BOARD)
 	GPIO.setup(RPWM, GPIO.OUT)
@@ -83,9 +92,13 @@ try:
 	GPIO.setup(EN_PWM, GPIO.OUT)
 	GPIO.setup(ENCODER_A, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)	# Configurado como PullDown
 	GPIO.setup(ENCODER_B, GPIO.IN)
+	GPIO.setup(ENCODER_A2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)	# Configurado como PullDown
+	GPIO.setup(ENCODER_B2, GPIO.IN)
 
 	# Configuracion que detecta flancos, bouncetiem dice que tan rapido lee el encoder
 	GPIO.add_event_detect(ENCODER_A, GPIO.RISING, callback=actualizar_posicion,bouncetime= 100)
+	GPIO.add_event_detect(ENCODER_A2, GPIO.RISING, callback=actualizar_posicion2,bouncetime= 100)
+
 
 	# Crear objetos PWM
 	rpwm = GPIO.PWM(RPWM, 1000)
@@ -153,6 +166,7 @@ try:
 		# Reinicio Variables globales
 		if(rein):
 			posicion = 0
+			posicion2 = 0
 
 		# Inicializar PWM
 		rpwm.start(0)
@@ -175,7 +189,7 @@ try:
 			tiempoAnterior = tiempoActual			# El tiempo anterior se convierte en el actual
 
 			#Calculo parte derivativa
-			error = pd-posicion				# Calculo del error
+			error = pd-((posicion+posicion2)/2)				# Calculo del error
 			dError = (error-errorAnt)/deltaTiempo		# Derivada del tiempo
 			errorAnt = error				
 
