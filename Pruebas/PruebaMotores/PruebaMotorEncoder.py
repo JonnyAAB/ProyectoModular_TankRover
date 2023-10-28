@@ -1,3 +1,4 @@
+
 import RPi.GPIO as GPIO
 from time import sleep
 
@@ -19,9 +20,6 @@ GPIO.setup(ENCODER_B, GPIO.IN)
 GPIO.setup(ENCODER_A2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)	# Configurado como PullDown
 GPIO.setup(ENCODER_B2, GPIO.IN)
 
-# Configuracion que detecta flancos, bouncetiem dice que tan rapido lee el encoder
-GPIO.add_event_detect(ENCODER_A, GPIO.RISING, callback=actualizar_posicion,bouncetime= 100)
-GPIO.add_event_detect(ENCODER_A2, GPIO.RISING, callback=actualizar_posicion2,bouncetime= 100)
 # Crear objetos PWM
 rpwm = GPIO.PWM(RPWM, 1000)
 lpwm = GPIO.PWM(LPWM, 1000)
@@ -37,32 +35,39 @@ lpwm.start(5)
 en_pwm.start(100)
 
 def actualizar_posicion(channel):
-    global posicion
-    if GPIO.input(ENCODER_A) == GPIO.HIGH:	#Cuando detecta el flanco A 
-        if GPIO.input(ENCODER_B) == GPIO.LOW:	#Si el flanco B esta abajo, se movió hacia adelante
-            posicion += 1
-        else:					#Sino pos se movió para atras
-            posicion -= 1
+	global posicion
+	if GPIO.input(ENCODER_A) == GPIO.HIGH:	#Cuando detecta el flanco A 
+		if GPIO.input(ENCODER_B) == GPIO.LOW:	#Si el flanco B esta abajo, se movió hacia adelante
+			posicion += 1
+		else:					#Sino pos se movió para atras
+			posicion -= 1
+	print(f'Posicion encoder 1: {posicion}')
 
 def actualizar_posicion2(channel):
-    global posicion2
-    if GPIO.input(ENCODER_A2) == GPIO.HIGH:	#Cuando detecta el flanco A 
-        if GPIO.input(ENCODER_B2) == GPIO.LOW:	#Si el flanco B esta abajo, se movió hacia adelante
-            posicion2 += 1
-        else:					#Sino pos se movió para atras
-            posicion2 -= 1
+	global posicion2
+	if GPIO.input(ENCODER_A2) == GPIO.HIGH:	#Cuando detecta el flanco A 
+		if GPIO.input(ENCODER_B2) == GPIO.LOW:	#Si el flanco B esta abajo, se movió hacia adelante
+			posicion2 += 1
+		else:					#Sino pos se movió para atras
+			posicion2 -= 1
+	print(f'Posicion encoder 2: {posicion2}')
+
+
+# Configuracion que detecta flancos, bouncetiem dice que tan rapido lee el encoder
+GPIO.add_event_detect(ENCODER_A, GPIO.RISING, callback=actualizar_posicion,bouncetime= 100)
+GPIO.add_event_detect(ENCODER_A2, GPIO.RISING, callback=actualizar_posicion2,bouncetime= 100)
 
 try:
 	while True:
 		mediaPosicion = (posicion + posicion2)/2
 
 		if(mediaPosicion > 65):
-			rpwm.ChangeDutyCycle(0)  # (ajusta según tus requerimientos)
-			lpwm.ChangeDutyCycle(5)  # (ajusta según tus requerimientos)
-		elif(mediaPosicion <0):
-			# Cambiar la velocidad del motor 
 			rpwm.ChangeDutyCycle(5)  # (ajusta según tus requerimientos)
 			lpwm.ChangeDutyCycle(0)  # (ajusta según tus requerimientos)
+		elif(mediaPosicion <0):
+			# Cambiar la velocidad del motor 
+			rpwm.ChangeDutyCycle(0)  # (ajusta según tus requerimientos)
+			lpwm.ChangeDutyCycle(5)  # (ajusta según tus requerimientos)
 		# Imprimir la posición actual del encoder
 		print("Posición:", mediaPosicion)
 		sleep(0.1)

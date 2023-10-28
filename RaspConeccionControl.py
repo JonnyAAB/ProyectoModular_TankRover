@@ -14,28 +14,26 @@ import json
 # Funciones 
 # ----------------------------------------------------------------------
 def actualizar_posicion(channel):
-    global posicion
-    if GPIO.input(ENCODER_A) == GPIO.HIGH:	#Cuando detecta el flanco A 
-        if GPIO.input(ENCODER_B) == GPIO.LOW:	#Si el flanco B esta abajo, se movió hacia adelante
-            posicion += 1
-        else:					#Sino pos se movió para atras
-            posicion -= 1
+	global posicion
+	if GPIO.input(ENCODER_A) == GPIO.HIGH:	#Cuando detecta el flanco A 
+		if GPIO.input(ENCODER_B) == GPIO.LOW:	#Si el flanco B esta abajo, se movió hacia adelante
+			posicion += 1
+		else:					#Sino pos se movió para atras
+			posicion -= 1
+	print(f'Posicion encoder 1: {posicion}')
 
 def actualizar_posicion2(channel):
-    global posicion2
-    if GPIO.input(ENCODER_A2) == GPIO.HIGH:	#Cuando detecta el flanco A 
-        if GPIO.input(ENCODER_B2) == GPIO.LOW:	#Si el flanco B esta abajo, se movió hacia adelante
-            posicion2 += 1
-        else:					#Sino pos se movió para atras
-            posicion2 -= 1
+	global posicion2
+	if GPIO.input(ENCODER_A2) == GPIO.HIGH:	#Cuando detecta el flanco A 
+		if GPIO.input(ENCODER_B2) == GPIO.LOW:	#Si el flanco B esta abajo, se movió hacia adelante
+			posicion2 += 1
+		else:					#Sino pos se movió para atras
+			posicion2 -= 1
+	print(f'Posicion encoder 2: {posicion2}')
 
 def setMotor(direccion,u):
-	if(direccion==1):
-		rpwm.ChangeDutyCycle(abs(u))  # ajusta según el control
-		lpwm.ChangeDutyCycle(0)  # Si se mueve para adelante, entonces el lpwm es 0
-	else:
-		lpwm.ChangeDutyCycle(abs(u))  # ajusta según el control
-		rpwm.ChangeDutyCycle(0)  # Si se mueve para atras, entonces el rpwm es 0
+	lpwm.ChangeDutyCycle(abs(u))  # ajusta según el control
+	rpwm.ChangeDutyCycle(0)  # Si se mueve para atras, entonces el rpwm es 0
 
 def muestraGraficas(tiempo,pos,pdPlot,control,errorPlot):
 	#Zona de Graficas
@@ -78,7 +76,7 @@ try:
 
 	# Configuración Rasp
 	# -----------------------------------------------------------------------------------
-	# Definición de pines del tipo BOARD
+	# Definición de pines BOARD
 	RPWM = 32
 	LPWM = 33
 	EN_PWM = 35
