@@ -14,41 +14,43 @@ import matplotlib.pyplot as plt
 # sudo python3 RaspConeccionControl.py
 
 def muestraGraficas(tiempo,pos,pdPlot,control,errorPlot):
-	#Zona de Graficas
-	plt.figure(1)
-	plt.plot(tiempo,pos,label='Posición Actual', color='blue',linestyle = '-')
-	plt.plot(tiempo,pdPlot,label='Posición Deseada', color='red',linestyle='--')
-	# ~ plt.ylim(-100,100)
-	# ~ plt.axis([xmin,xmax,ymin,ymax])
-	plt.title("Grafica Posición")
-	plt.xlabel("Tiempo")
-	plt.ylabel("Posición")
-	plt.legend()
-	plt.grid(True)
+    #Zona de Graficas
+    plt.figure(1)
+    plt.plot(tiempo,pos,label='Posición Actual', color='blue',linestyle = '-')
+    plt.plot(tiempo,pdPlot,label='Posición Deseada', color='red',linestyle='--')
+    # ~ plt.ylim(-100,100)
+    # ~ plt.axis([xmin,xmax,ymin,ymax])
+    plt.title("Grafica Posición")
+    plt.xlabel("Tiempo")
+    plt.ylabel("Posición")
+    plt.legend()
+    plt.grid(True)
+
+    plt.figure(2)
+    plt.plot(tiempo,control, label='Accion de Control', color='blue',linestyle = '-')
+    plt.title("Grafica Accion de Control")
+    plt.xlabel("Tiempo")
+    plt.ylabel("Acción de Control")
+    plt.legend()
+    plt.grid(True)
 	
-	plt.figure(2)
-	plt.plot(tiempo,control, color='blue',linestyle = '-')
-	plt.title("Grafica Accion de Control")
-	plt.xlabel("Tiempo")
-	plt.ylabel("Acción de Control")
-	plt.grid(True)
-	
-	plt.figure(3)
-	plt.plot(tiempo,errorPlot, color='blue',linestyle = '-')
-	plt.title("Grafica Error")
-	plt.xlabel("Tiempo")
-	plt.ylabel("Error")
-	plt.grid(True)
-	
+    plt.figure(3)
+    plt.plot(tiempo,errorPlot, label= 'Error', color='blue',linestyle = '-')
+    plt.title("Grafica Error")
+    plt.xlabel("Tiempo")
+    plt.ylabel("Error")
+    plt.grid(True)
+    plt.legend()
+
 	#Muestra las graficas
-	plt.show()
+    plt.show()
 	
 	#	sleep(1)
-	plt.close("all")
+    plt.close("all")
 # # -----------------------------------------------------------------------
 
 # Configura el cliente
-server_host = '192.168.10.60'  # La dirección IP de la Raspberry Pi en la red local
+server_host = '192.168.8.236'  # La dirección IP de la Raspberry Pi en la red local
 server_port = 1342  # Puerto de escucha (debe coincidir con el puerto del servidor), 
                     # puede ser cualquier puerto solo tienen que coincidir y que no se este utilizando
 
