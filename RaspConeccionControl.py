@@ -14,21 +14,26 @@ import json
 # Funciones 
 # ----------------------------------------------------------------------
 def actualizar_posicion(channel):
-    global posicion
-    if GPIO.input(ENCODER_A) == GPIO.HIGH:	#Cuando detecta el flanco A 
-        if GPIO.input(ENCODER_B) == GPIO.LOW:	#Si el flanco B esta abajo, se movió hacia adelante
-            posicion += 1
-        else:					#Sino pos se movió para atras
-            posicion -= 1
-    print("Posición:", posicion)	# Imprime la posición actual
-    
+	global posicion
+	if GPIO.input(ENCODER_A) == GPIO.HIGH:	#Cuando detecta el flanco A 
+		if GPIO.input(ENCODER_B) == GPIO.LOW:	#Si el flanco B esta abajo, se movió hacia adelante
+			posicion += 1
+		else:					#Sino pos se movió para atras
+			posicion -= 1
+	print(f'Posicion encoder 1: {posicion}')
+
+def actualizar_posicion2(channel):
+	global posicion2
+	if GPIO.input(ENCODER_A2) == GPIO.HIGH:	#Cuando detecta el flanco A 
+		if GPIO.input(ENCODER_B2) == GPIO.LOW:	#Si el flanco B esta abajo, se movió hacia adelante
+			posicion2 += 1
+		else:					#Sino pos se movió para atras
+			posicion2 -= 1
+	print(f'Posicion encoder 2: {posicion2}')
+
 def setMotor(direccion,u):
-	if(direccion==1):
-		rpwm.ChangeDutyCycle(abs(u))  # ajusta según el control
-		lpwm.ChangeDutyCycle(0)  # Si se mueve para adelante, entonces el lpwm es 0
-	else:
-		lpwm.ChangeDutyCycle(abs(u))  # ajusta según el control
-		rpwm.ChangeDutyCycle(0)  # Si se mueve para atras, entonces el rpwm es 0
+	lpwm.ChangeDutyCycle(abs(u))  # ajusta según el control
+	rpwm.ChangeDutyCycle(0)  # Si se mueve para atras, entonces el rpwm es 0
 
 def muestraGraficas(tiempo,pos,pdPlot,control,errorPlot):
 	#Zona de Graficas
@@ -67,15 +72,18 @@ def muestraGraficas(tiempo,pos,pdPlot,control,errorPlot):
 try:
 	# Variables globales
 	posicion = 0
+	posicion2 = 0
 
 	# Configuración Rasp
 	# -----------------------------------------------------------------------------------
-	# Definición de pines del tipo BOARD
+	# Definición de pines BOARD
 	RPWM = 32
 	LPWM = 33
 	EN_PWM = 35
 	ENCODER_A = 11
 	ENCODER_B = 13
+	ENCODER_A2 = 16
+	ENCODER_B2 = 15
 	# Configuración de Raspberry Pi GPIO
 	GPIO.setmode(GPIO.BOARD)
 	GPIO.setup(RPWM, GPIO.OUT)
@@ -83,9 +91,13 @@ try:
 	GPIO.setup(EN_PWM, GPIO.OUT)
 	GPIO.setup(ENCODER_A, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)	# Configurado como PullDown
 	GPIO.setup(ENCODER_B, GPIO.IN)
+	GPIO.setup(ENCODER_A2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)	# Configurado como PullDown
+	GPIO.setup(ENCODER_B2, GPIO.IN)
 
 	# Configuracion que detecta flancos, bouncetiem dice que tan rapido lee el encoder
 	GPIO.add_event_detect(ENCODER_A, GPIO.RISING, callback=actualizar_posicion,bouncetime= 100)
+	GPIO.add_event_detect(ENCODER_A2, GPIO.RISING, callback=actualizar_posicion2,bouncetime= 100)
+
 
 	# Crear objetos PWM
 	rpwm = GPIO.PWM(RPWM, 1000)
@@ -136,12 +148,7 @@ try:
 			tSimulacion = parametros["t"]
 			# Opcion de reinicio
 			rein = parametros["rein"]
-		print(type(pd),f"pd= {pd} ")
-		print(type(kp), f"kp = {kp}")
-		print(type(kd), f"kd= {kd}")
-		print(type(tSimulacion),f"tSim = {tSimulacion}")
-		print(type(rein))
-		print(rein)
+
 #		sleep(50)
 		#Inicializar listas, (tiempo,posicion,AccionControl,posicionDeseada y error)
 		tiempo=[]
@@ -153,6 +160,7 @@ try:
 		# Reinicio Variables globales
 		if(rein):
 			posicion = 0
+			posicion2 = 0
 
 		# Inicializar PWM
 		rpwm.start(0)
@@ -173,15 +181,17 @@ try:
 			tiempoActual=time()
 			deltaTiempo = tiempoActual-tiempoAnterior	#Diferencia de tiempo
 			tiempoAnterior = tiempoActual			# El tiempo anterior se convierte en el actual
-
+			
+			#Calculo distancia
+			mediaEncoder = (posicion + posicion2)/2
+			
 			#Calculo parte derivativa
-			error = pd-posicion				# Calculo del error
+			error = pd-mediaEncoder				# Calculo del error
 			dError = (error-errorAnt)/deltaTiempo		# Derivada del tiempo
 			errorAnt = error				
 
 			# Ley de control
 			u = kp*error+kd*dError
-			print(u)
 #			sleep(1)
 
 			# Cambio de dirección dependiendo la ley de control
@@ -191,15 +201,15 @@ try:
 				direccion=1
 
 			#Saturacion
-			if(abs(u)>55):
-				u=55
+			if(abs(u)>10):
+				u=10
 			else:
 				u=abs(u)
 
 			# Llamada al control de motores
 			setMotor(direccion,abs(u))
 
-			if(i==1):
+			if i==1:
 				i+=1
 				t += 0
 			else:
@@ -209,8 +219,9 @@ try:
 			tiempo.append(t)		#Añade el tiempo
 
 			# Imprimir la posición actual del encoder
-			print("Posición:", posicion)
-			pos.append(posicion)		# Añadir a la lista la posicion actual
+			print("Posición encoder 1:", posicion)
+			print("Posicion encoder 2:", posicion2)
+			pos.append((posicion+posicion2)/2)		# Añadir a la lista la posicion actual
 			pdPlot.append(pd)		# Añade a la lista la posición deseada
 
 			# Imprimir error
