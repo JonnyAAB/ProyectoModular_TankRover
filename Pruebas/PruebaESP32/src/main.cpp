@@ -1,17 +1,16 @@
 #include <Arduino.h>
 
 void setup() {
-  Serial.begin(9600); // Inicia la comunicación serial a 9600 baudios
+  Serial.begin(9600);
 }
 
 void loop() {
-  // Envía variables a la Raspberry Pi
-  int variable1 = 42;
-  float variable2 = 3.14;
-  // Envía las variables como texto
-  Serial.print("Variable1: ");
-  Serial.println(variable1);
-  Serial.print("Variable2: ");
-  Serial.println(variable2);
-  delay(1000);
+  if (Serial.available() > 0) {
+    String receivedData = Serial.readStringUntil('\n'); // Lee los datos hasta encontrar una nueva línea
+    Serial.println("Datos recibidos: " + receivedData);
+
+    // Analiza los datos JSON
+    // Asegúrate de incluir la biblioteca JSON adecuada
+    // (puedes usar la biblioteca "ArduinoJson" para analizar datos JSON)
+  }
 }

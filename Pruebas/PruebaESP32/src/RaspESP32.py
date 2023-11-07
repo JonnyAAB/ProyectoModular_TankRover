@@ -1,15 +1,23 @@
 import serial
+import json
 
-# Configura la comunicación serial
-ser = serial.Serial('/dev/tty/USB0', 9600)  # Asegúrate de especificar el puerto correcto
+# Configura el puerto serie
+ser = serial.Serial('/dev/ttyUSB0', 9600)  # Reemplaza con el nombre correcto de tu puerto serie
 
-while True:
-    # Lee los datos de la ESP32
-    data = ser.readline().decode('utf-8').strip()
-    print("Datos recibidos:", data)
-    # Lee datos del usuario o de alguna fuente de datos en Python
-    enviarTexto = "Texto enviado desde la rasp"
-    # Envía los datos a la ESP32
-    ser.write(enviarTexto.encode() + b'\n')
+# Datos a enviar
+datos_a_enviar = {
+    "comando": "Graficas",
+    "parametros": {
+        "tiempo": [1, 2, 3, 4, 5],
+        "pos": [10, 20, 30, 40, 50],
+        "pdPlot": [5, 15, 25, 35, 45],
+        "control": [1, 2, 3, 4, 5],
+        "errorPlot": [0, 0, 0, 0, 0]
+    }
+}
 
-    # Aquí puedes procesar los datos según tus necesidades
+# Convierte los datos a JSON
+datos_json = json.dumps(datos_a_enviar)
+
+# Envía los datos por el puerto serie
+ser.write(datos_json.encode())
