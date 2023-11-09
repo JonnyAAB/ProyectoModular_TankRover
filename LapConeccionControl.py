@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 # Por ultimo correr el programa 
 # sudo python3 RaspConeccionControl.py
 
-def muestraGraficas(tiempo,pos,pdPlot,control,errorPlot):
+def muestraGraficas(tiempo,pos,pos1,pos2,pdPlot,control,control1,control2,errorPlot):
     #Zona de Graficas
     plt.figure(1)
     plt.plot(tiempo,pos,label='Posición Actual', color='blue',linestyle = '-')
@@ -28,6 +28,8 @@ def muestraGraficas(tiempo,pos,pdPlot,control,errorPlot):
 
     plt.figure(2)
     plt.plot(tiempo,control, label='Accion de Control', color='blue',linestyle = '-')
+    plt.plot(tiempo,control1, label='Accion de Control Motor 1', color='red',linestyle = '-')
+    plt.plot(tiempo,control2, label='Accion de Control Motor 2', color='green',linestyle = '-')
     plt.title("Grafica Accion de Control")
     plt.xlabel("Tiempo")
     plt.ylabel("Acción de Control")
@@ -51,7 +53,7 @@ def muestraGraficas(tiempo,pos,pdPlot,control,errorPlot):
 
 # Configura el cliente
 server_host = '192.168.1.39'  # La dirección IP de la Raspberry Pi en la red local
-server_port = 1344  # Puerto de escucha (debe coincidir con el puerto del servidor), 
+server_port = 1346  # Puerto de escucha (debe coincidir con el puerto del servidor), 
                     # puede ser cualquier puerto solo tienen que coincidir y que no se este utilizando
 
 # Crea el socket del cliente
@@ -59,6 +61,7 @@ client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect((server_host, server_port))
 
 i=False  # Operador auxiliar para reinicio de posición
+os.system('cls')    # Limpias la consola
 
 try:
     while True:
@@ -123,11 +126,13 @@ try:
             pos = parametros["pos"]
             pdPlot = parametros["pdPlot"]
             control = parametros["control"]
+            control1 = parametros["control1"]
+            control2 = parametros["control2"]
             errorPlot = parametros["errorPlot"]
         # -------------------------------------------------------------------------
 
         # Mandamos a llamar a la función de graficas
-        muestraGraficas(tiempo,pos,pdPlot,control,errorPlot)
+        muestraGraficas(tiempo,pos,pdPlot,control,control1,control2,errorPlot)
 
         # Logica para seguir con el programa o salirse del bucle
         print("Presiona una tecla para continuar o esc (escape) para salir")
@@ -146,7 +151,8 @@ try:
 
 
 except KeyboardInterrupt:
-    pass
+    print("Interrupción del usuario. Cerrando cliente.")
+    client_socket.close()
 
 finally:
     print("Cerrando cliente")
