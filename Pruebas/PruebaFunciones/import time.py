@@ -2,11 +2,18 @@ import time
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 
+def PruebaReturn():
+    a = 3
+    b = 4
+    c = 5
+    d = 6
+    return a,b,c,d
+
 # Registra el tiempo inicial
 tiempo_inicial = time.time()
 
 # Realiza alguna operación o espera
-time.sleep(3)  # Espera durante 3 segundos como ejemplo
+time.sleep(1)  # Espera durante 3 segundos como ejemplo
 
 # Registra el tiempo final
 tiempo_final = time.time()
@@ -15,6 +22,12 @@ print(tiempo_final)
 # # Calcula la diferencia en segundos
 diferencia = tiempo_final - tiempo_inicial
 print(diferencia)
+
+[a,b,c,d] = PruebaReturn()
+
+print(a, " ", b, " ", c, " ", d)
+print(a+b+c+d)
+
 # # Crear una función de formato personalizado para el eje x
 # def formato_segundos(x, pos):
 #     return f"{x:.1f} s"

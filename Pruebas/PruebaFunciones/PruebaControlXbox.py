@@ -2,6 +2,34 @@ import pygame
 import os
 import time
 
+def setMotor(u1,u2,direccion1,direccion2):
+    print(f"u1: {u1}")
+    print(f"u2: {u2}")
+
+def ValorMedio(u, left_stick_x):
+    # Stick izquierdo, eje X, -1 izquierdo 1 derecho
+    if left_stick_x == -1:
+        u1 = 0
+        u2 = u
+    elif left_stick_x == 1:
+        u1 = u
+        u2 = 0
+    else:
+        # Calcular un control proporcional en función de la distancia desde -1 o 1
+        if left_stick_x < -1:
+            control_factor = 0
+        elif left_stick_x > 1:
+            control_factor = 1
+        else:
+            control_factor = (left_stick_x + 1) / 2  # Ajusta a un rango de 0 a 1
+
+        # Calculo de la velocidad
+        u1 = u * (1 - control_factor)
+        u2 = u * control_factor
+
+    return u1, u2
+
+
 
 def normalizar_valor(valor_original):
     valor_normalizado = ((valor_original - (-1)) / (2)) * 60
@@ -22,14 +50,41 @@ if pygame.joystick.get_count() > 0:
     # Loop principal
     while True:
         for event in pygame.event.get():
-            if event.type == pygame.JOYAXISMOTION:
-                if event.axis == 4:  # Gatillo izquierdo
-                    left_trigger = event.value
-                    print(f"Gatillo Izquierdo: {left_trigger}")
-                elif event.axis == 5:  # Gatillo derecho
-                    right_trigger = event.value
-                    print(f"Gatillo Derecho: {right_trigger}")
-                    print(normalizar_valor(right_trigger))
+            if event.type == pygame.JOYBUTTONDOWN:
+                if event.button == 0:           # Si back es presionado se sale de la función
+                    break
+
+            elif event.type == pygame.JOYAXISMOTION:
+                    if event.axis == 4:  # Gatillo izquierdo
+                        left_trigger = event.value
+                        u = normalizar_valor(left_trigger)
+                        # # Lectura de los valores de los sticks analógicos
+                        left_stick_x = joystick.get_axis(0)  # Stick izquierdo, eje X, -1 izquierdo 1 derecho
+                        if u <= 0.009:
+                            setMotor(0,0,0,0)
+                        else:
+                            u1,u2 = ValorMedio(u,left_stick_x)
+                            setMotor(u1,u2,0,0)
+                        
+                    elif event.axis == 5:  # Gatillo derecho
+                        right_trigger = event.value
+                        u = normalizar_valor(right_trigger)
+                        # # Lectura de los valores de los sticks analógicos
+                        left_stick_x = joystick.get_axis(0)  # Stick izquierdo, eje X, -1 izquierdo 1 derecho
+                        if u <= 0.09:
+                            setMotor(0, 0,1,1)
+                        else:
+                            u1,u2 = ValorMedio(u,left_stick_x) 
+                            setMotor(u1, u2,1,1) 
+        # for event in pygame.event.get():
+        #     if event.type == pygame.JOYAXISMOTION:
+        #         if event.axis == 4:  # Gatillo izquierdo
+        #             left_trigger = event.value
+        #             print(f"Gatillo Izquierdo: {left_trigger}")
+        #         elif event.axis == 5:  # Gatillo derecho
+        #             right_trigger = event.value
+        #             print(f"Gatillo Derecho: {right_trigger}")
+        #             print(normalizar_valor(right_trigger))
     #     for event in pygame.event.get():
     #         if event.type == pygame.QUIT:
     #             pygame.quit()
