@@ -17,7 +17,7 @@ import serial
 # ----------------------------------------------------------------------
 def CrearServidor():
 		server_host = '192.168.1.39'  # Escucha en todas las interfaces de red
-		server_port = 1344  # Puerto de escucha (puedes usar cualquier número de puerto)
+		server_port = 1346  # Puerto de escucha (puedes usar cualquier número de puerto)
 		print(f"Esperando conexiones en {server_host}:{server_port}")
 		
 		# Crea el socket del servidor
@@ -60,7 +60,7 @@ def RecibirDatosCliente(client_socket):
 
 	return pd, kp, kd, tSimulacion, rein
 
-def EnviarGraficas(tiempo,pos,pdPlot,control,errorPlot,client_socket):
+def EnviarGraficas(tiempo,pos,pdPlot,control,control1,control2,errorPlot,client_socket):
 	# Datos que deseas enviar al cliente (en formato de diccionario)
 		datos_a_enviar = {
 			"comando": "Graficas",
@@ -69,6 +69,8 @@ def EnviarGraficas(tiempo,pos,pdPlot,control,errorPlot,client_socket):
 				"pos": pos,
 				"pdPlot": pdPlot,
 				"control": control,
+				"control1": control2,
+				"control2": control1,
 				"errorPlot": errorPlot
 			}
 		}
@@ -76,6 +78,7 @@ def EnviarGraficas(tiempo,pos,pdPlot,control,errorPlot,client_socket):
 		# Convertir los datos a JSON
 		data_json = json.dumps(datos_a_enviar)
 		data_length = len(data_json)
+		print(data_length)
 
 		# Enviar la longitud de los datos
 		client_socket.send(str(data_length).encode())
@@ -126,6 +129,19 @@ def setMotor(u1,u2,direccion1,direccion2):
 	except Exception as e:
 		print(f"Error al enviar datos: {e}")
 
+def DireccionSaturacion(u):
+	# Cambio de dirección dependiendo la ley de control
+	if(u<0):
+		direccion=-1
+	else:
+		direccion=1
+
+	#Saturacion
+	if(abs(u)>140):
+		u=140
+	else:
+		u=abs(u)
+	return u, direccion
 # -----------------------------------------------------------------------
 
 try:
@@ -171,6 +187,8 @@ try:
 		tiempo=[]
 		pos = []
 		control = []
+		control1 = []
+		control2 = []
 		pdPlot=[]
 		errorPlot = []
 
@@ -210,23 +228,9 @@ try:
 			u = kp*error+kd*dError
 #			sleep(1)
 
-			# Cambio de dirección dependiendo la ley de control
-			if(u<0):
-				direccion=-1
-			else:
-				direccion=1
-
-			#Saturacion
-			if(abs(u)>140):
-				u=140
-			else:
-				u=abs(u)
-				
-			u1 = u
-			u2 = u
-
-			direccion1 = direccion
-			direccion2 = direccion
+			# Parte de direccion y saturacion del control
+			u1, direccion1 = DireccionSaturacion(u)
+			u2, direccion2 = DireccionSaturacion(u)
 
 			setMotor(u1,u2,direccion1,direccion2)
 			
@@ -250,25 +254,29 @@ try:
 			errorPlot.append(error)		# Añade el error
 
 			#Imprimir control
-			print("El control es de: ",u)
+			u = (u1+u2)/2			#Promedio de control
+			print("El promedio de control es de: ",u)
 			control.append(u)		# Añade la acción de control
+			control1.append(u1)
+			control2.append(u2)
 
 			sleep(0.1)	# Para evitar problemas de lectura de datos
 		
 		setMotor(0,0,direccion1,direccion2)
 		
-		EnviarGraficas(tiempo,pos,pdPlot,control,errorPlot,client_socket)
+		EnviarGraficas(tiempo,pos,pdPlot,control,control1,control2,errorPlot,client_socket)
 
 		sleep(.1)
 
-except Exception:
-	setMotor(0,0,direccion1,direccion2)
-	pass
+except Exception as e:
+    print(f"Error en el servidor: {e}")
+    setMotor(0, 0, direccion1, direccion2)
+    pass
 
 finally:
-	# Detener conexiones y limpiar GPIO
-	print("Cerrando conexiones...")
-	print("Adios :D")
-	sleep(2)
-	ser.close()
-	GPIO.cleanup()
+    # Detener conexiones y limpiar GPIO
+    print("Cerrando conexiones...")
+    print("Adiós :D")
+    sleep(2)
+    ser.close()
+    GPIO.cleanup()
