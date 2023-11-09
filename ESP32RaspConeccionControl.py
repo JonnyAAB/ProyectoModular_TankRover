@@ -36,7 +36,7 @@ def RecibirDatosCliente():
 	#Si se desconecta el cliente
 	if not data:
 		print("El cliente se ha desconectado")
-		break
+		return 0
 		
 	# Cargar los datos recibidos en estructura Python de Json
 	datos = json.loads(data)
