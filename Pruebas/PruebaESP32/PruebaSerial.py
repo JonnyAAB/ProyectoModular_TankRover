@@ -8,18 +8,24 @@ ser = serial.Serial('COM5', 9600)  # Reemplaza 'COM3' con el puerto COM correcto
 
 try:
     while True:
-        u1 = random.randint(0, 255)
-        u2 = random.randint(0, 255)
-        direccion1 = random.randint(0, 255)
-        direccion2 = random.randint(0, 255)
-
-        # Crea un diccionario con los datos a enviar en formato JSON
-        data = {
-            "u1": u1, "u2": u2, "direccion1": direccion1, "direccion2": direccion2
-        }
-        time.sleep(.5)
-        # Convierte el diccionario en una cadena JSON
-        json_data = json.dumps(data)
+        u = 0 
+        u1 = u
+        u2 = u1
+        for u in range (0,255,1):
+            u1 = 0
+            u2 = 0
+            direccion1 = 1
+            direccion2 = 1
+            # Crea un diccionario con los datos a enviar en formato JSON
+            data = {
+                "u1": u1,
+                "u2": u2,
+                "direccion1": direccion1,
+                "direccion2": direccion2
+            }
+            time.sleep(.05)
+            # Convierte el diccionario en una cadena JSON
+            json_data = json.dumps(data)
 
         try:
             # Envía la cadena JSON a la ESP32 a través del puerto serial
