@@ -16,8 +16,8 @@ import serial
 # Funciones 
 # ----------------------------------------------------------------------
 def CrearServidor():
-		server_host = '192.168.0.44'  # Escucha en todas las interfaces de red
-		server_port = 1342  # Puerto de escucha (puedes usar cualquier número de puerto)
+		server_host = '192.168.1.39'  # Escucha en todas las interfaces de red
+		server_port = 1344  # Puerto de escucha (puedes usar cualquier número de puerto)
 		print(f"Esperando conexiones en {server_host}:{server_port}")
 		
 		# Crea el socket del servidor
@@ -28,15 +28,16 @@ def CrearServidor():
 		# Acepta una conexión entrante
 		client_socket, client_address = server_socket.accept()
 		print(f"Conectado a {client_address}")
+		return client_socket
 
-def RecibirDatosCliente():
+def RecibirDatosCliente(client_socket):
 	# Datos recibidos
 	data = client_socket.recv(1024).decode()
 	
 	#Si se desconecta el cliente
 	if not data:
 		print("El cliente se ha desconectado")
-		break
+		return 0
 		
 	# Cargar los datos recibidos en estructura Python de Json
 	datos = json.loads(data)
@@ -59,7 +60,7 @@ def RecibirDatosCliente():
 
 	return pd, kp, kd, tSimulacion, rein
 
-def EnviarGraficas(tiempo,pos,pdPlot,control,errorPlot):
+def EnviarGraficas(tiempo,pos,pdPlot,control,errorPlot,client_socket):
 	# Datos que deseas enviar al cliente (en formato de diccionario)
 		datos_a_enviar = {
 			"comando": "Graficas",
@@ -135,8 +136,8 @@ try:
 	# Configuración Rasp
 	# -----------------------------------------------------------------------------------
 	# Definición de pines BOARD
-	ENCODER_A = 11
-	ENCODER_B = 13
+	ENCODER_A = 13
+	ENCODER_B = 11		
 	ENCODER_A2 = 16
 	ENCODER_B2 = 15
 	# Configuración de Raspberry Pi GPIO
@@ -154,7 +155,7 @@ try:
 
 	# Configura el servidor
 	# ----------------------------------------------------------------------
-	CrearServidor()
+	client_socket = CrearServidor()
 	# ----------------------------------------------------------------------
 
 	# Configuracion puerto serial para la ESP32
@@ -164,7 +165,7 @@ try:
 
 	while True:
 		# Datos recibidos
-		pd, kp, kd, tSimulacion, rein = RecibirDatosCliente()
+		pd, kp, kd, tSimulacion, rein = RecibirDatosCliente(client_socket)
 		
 		#Inicializar listas, (tiempo,posicion,AccionControl,posicionDeseada y error)
 		tiempo=[]
@@ -222,7 +223,7 @@ try:
 				u=abs(u)
 				
 			u1 = u
-			u2 = u1
+			u2 = u
 
 			direccion1 = direccion
 			direccion2 = direccion
@@ -256,11 +257,12 @@ try:
 		
 		setMotor(0,0,direccion1,direccion2)
 		
-		EnviarGraficas(tiempo,pos,pdPlot,control,errorPlot)
+		EnviarGraficas(tiempo,pos,pdPlot,control,errorPlot,client_socket)
 
 		sleep(.1)
 
-except KeyboardInterrupt:
+except Exception:
+	setMotor(0,0,direccion1,direccion2)
 	pass
 
 finally:
