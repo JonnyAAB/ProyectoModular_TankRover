@@ -8,7 +8,13 @@ ser = serial.Serial('/dev/ttyUSB0', 9600)  # Reemplaza 'COM3' con el puerto COM 
 try:
     while True:
         u = 0 
+        u1 = u
+        u2 = u1
         for u in range (0,255,1):
+            u1 = 0
+            u2 = 0
+            direccion1 = 1
+            direccion2 = 1
             # Crea un diccionario con los datos a enviar en formato JSON
             data = {
                 "u1": u1,
