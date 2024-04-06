@@ -14,10 +14,11 @@ import keyboard
 # Por ultimo correr el programa 
 # sudo python3 RaspConeccionControl.py
 
-def muestraGraficas(tiempo,pos,pdPlot,control,control1,control2,errorPlot):
+def muestraGraficas(tiempo,pos1,pos2,pdPlot,control,control1,control2,errorPlot1,errorPlot2):
     #Zona de Graficas
     plt.figure(1)
-    plt.plot(tiempo,pos,label='Posición Actual', color='blue',linestyle = '-')
+    plt.plot(tiempo,pos1,label='Posición 1', color='blue',linestyle = '-')
+    plt.plot(tiempo,pos2,label='Posición 2', color='green',linestyle = '-')
     plt.plot(tiempo,pdPlot,label='Posición Deseada', color='red',linestyle='--')
     # ~ plt.ylim(-100,100)
     # ~ plt.axis([xmin,xmax,ymin,ymax])
@@ -38,8 +39,9 @@ def muestraGraficas(tiempo,pos,pdPlot,control,control1,control2,errorPlot):
     plt.grid(True)
 	
     plt.figure(3)
-    plt.plot(tiempo,errorPlot, label= 'Error', color='blue',linestyle = '-')
-    plt.title("Grafica Error")
+    plt.plot(tiempo,errorPlot1, label= 'Error 1', color='blue',linestyle = '-')
+    plt.plot(tiempo,errorPlot2, label= 'Error 1', color='green',linestyle = '-')
+    plt.title("Grafica errores de posición")
     plt.xlabel("Tiempo")
     plt.ylabel("Error")
     plt.grid(True)
@@ -67,7 +69,7 @@ os.system('cls')    # Limpias la consola
 try:
     while True:
         # Definir los datos a enviar en formato JSON
-        pd = int(input("Ingrese posición deseada: "))
+        pd = int(input("\nIngrese posición deseada: "))
         kp = float(input("Ingrese kp: "))
         kd = float(input("Ingrese kd: "))
         t = int(input("Ingrese tiempo simulación: "))
@@ -124,16 +126,18 @@ try:
         # Obteniendo datos de las listas
         if comando == "Graficas":
             tiempo = parametros["tiempo"]
-            pos = parametros["pos"]
+            pos1 = parametros["pos1"]
+            pos2 = parametros["pos2"]
             pdPlot = parametros["pdPlot"]
             control = parametros["control"]
             control1 = parametros["control1"]
             control2 = parametros["control2"]
-            errorPlot = parametros["errorPlot"]
+            errorPlot1 = parametros["errorPlot1"]
+            errorPlot2 = parametros["errorPlot2"]
         # -------------------------------------------------------------------------
 
         # Mandamos a llamar a la función de graficas
-        muestraGraficas(tiempo,pos,pdPlot,control,control1,control2,errorPlot)
+        muestraGraficas(tiempo,pos1,pos2,pdPlot,control,control1,control2,errorPlot1,errorPlot2)
 
         # Logica para seguir con el programa o salirse del bucle
         print("Presiona cualquier tecla para continuar, o 'esc' para salir: ", end='', flush=True)

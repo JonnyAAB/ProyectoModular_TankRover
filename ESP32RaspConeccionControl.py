@@ -16,8 +16,8 @@ import serial
 # Funciones 
 # ----------------------------------------------------------------------
 def CrearServidor():
-		server_host = '192.168.1.39'  # Escucha en todas las interfaces de red
-		server_port = 1346  # Puerto de escucha (puedes usar cualquier número de puerto)
+		server_host = '192.168.137.37'  # Escucha en todas las interfaces de red
+		server_port = 1341  # Puerto de escucha (puedes usar cualquier número de puerto)
 		print(f"Esperando conexiones en {server_host}:{server_port}")
 		
 		# Crea el socket del servidor
@@ -60,18 +60,20 @@ def RecibirDatosCliente(client_socket):
 
 	return pd, kp, kd, tSimulacion, rein
 
-def EnviarGraficas(tiempo,pos,pdPlot,control,control1,control2,errorPlot,client_socket):
+def EnviarGraficas(tiempo,pos1,pos2,pdPlot,control,control1,control2,errorPlot1,errorPlot2,client_socket):
 	# Datos que deseas enviar al cliente (en formato de diccionario)
 		datos_a_enviar = {
 			"comando": "Graficas",
 			"parametros": {
 				"tiempo": tiempo,
-				"pos": pos,
+				"pos1": pos1,
+				"pos2": pos2,
 				"pdPlot": pdPlot,
 				"control": control,
-				"control1": control2,
-				"control2": control1,
-				"errorPlot": errorPlot
+				"control1": control1,
+				"control2": control2,
+				"errorPlot1": errorPlot1,
+				"errorPlot2": errorPlot2
 			}
 		}
 
@@ -101,9 +103,9 @@ def actualizar_posicion(channel):
 	global posicion
 	if GPIO.input(ENCODER_A) == GPIO.HIGH:	#Cuando detecta el flanco A 
 		if GPIO.input(ENCODER_B) == GPIO.LOW:	#Si el flanco B esta abajo, se movió hacia adelante
-			posicion += 1
-		else:					#Sino pos se movió para atras
 			posicion -= 1
+		else:					#Sino pos se movió para atras
+			posicion += 1
 	print(f'Posicion encoder 1: {posicion}')
 
 def actualizar_posicion2(channel):
@@ -125,7 +127,7 @@ def setMotor(u1,u2,direccion1,direccion2):
 	try:
 		# Envía la cadena JSON a la ESP32 a través del puerto serial
 		ser.write((json_data + "\n").encode())
-		print(f"Dato JSON enviado: {json_data}")
+		#print(f"Dato JSON enviado: {json_data}")
 	except Exception as e:
 		print(f"Error al enviar datos: {e}")
 
@@ -152,10 +154,10 @@ try:
 	# Configuración Rasp
 	# -----------------------------------------------------------------------------------
 	# Definición de pines BOARD
-	ENCODER_A = 13
-	ENCODER_B = 11		
-	ENCODER_A2 = 16
-	ENCODER_B2 = 15
+	ENCODER_A = 11
+	ENCODER_B = 13		
+	ENCODER_A2 = 15
+	ENCODER_B2 = 29
 	# Configuración de Raspberry Pi GPIO
 	GPIO.setmode(GPIO.BOARD)
 	GPIO.setup(ENCODER_A, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)	# Configurado como PullDown
@@ -185,12 +187,14 @@ try:
 		
 		#Inicializar listas, (tiempo,posicion,AccionControl,posicionDeseada y error)
 		tiempo=[]
-		pos = []
+		pos1 = []
+		pos2 = []
 		control = []
 		control1 = []
 		control2 = []
 		pdPlot=[]
-		errorPlot = []
+		errorPlot1 = []
+		errorPlot2 = []
 
 		# Reinicio Variables globales
 		if(rein):
@@ -198,7 +202,8 @@ try:
 			posicion2 = 0
 
 		# Inicializar parametros control	
-		errorAnt = 0
+		errorAnt1 = 0
+		errorAnt2 = 0
 		tiempoAnterior = 0
 		t = 0
 		i=1 	# Para agregar el primer elemento, que la diferencia de tiempo es mucha
@@ -216,21 +221,23 @@ try:
 			deltaTiempo = tiempoActual-tiempoAnterior	#Diferencia de tiempo
 			tiempoAnterior = tiempoActual			# El tiempo anterior se convierte en el actual
 			
-			#Calculo distancia
-			mediaEncoder = (posicion + posicion2)/2
-			
 			#Calculo parte derivativa
-			error = pd-mediaEncoder				# Calculo del error
-			dError = (error-errorAnt)/deltaTiempo		# Derivada del tiempo
-			errorAnt = error				
+			error1 = pd-posicion				# Calculo del error
+			dError1 = (error1-errorAnt1)/deltaTiempo		# Derivada del tiempo
+			errorAnt1 = error1
+
+			error2 = pd-posicion2				# Calculo del error
+			dError2 = (error2-errorAnt2)/deltaTiempo		# Derivada del tiempo
+			errorAnt2 = error2				
 
 			# Ley de control
-			u = kp*error+kd*dError
+			u1 = kp*error1+kd*dError1
+			u2 = kp*error2+kd*dError2
 #			sleep(1)
 
 			# Parte de direccion y saturacion del control
-			u1, direccion1 = DireccionSaturacion(u)
-			u2, direccion2 = DireccionSaturacion(u)
+			u1, direccion1 = DireccionSaturacion(u1)
+			u2, direccion2 = DireccionSaturacion(u2)
 
 			setMotor(u1,u2,direccion1,direccion2)
 			
@@ -240,31 +247,33 @@ try:
 			else:
 				t += deltaTiempo
 
-			print("Tiempo = ",t)
 			tiempo.append(t)		#Añade el tiempo
 
 			# Imprimir la posición actual del encoder
-			print("Posición encoder 1:", posicion)
-			print("Posicion encoder 2:", posicion2)
-			pos.append((posicion+posicion2)/2)		# Añadir a la lista la posicion actual
+			print("\nPosición encoder 1:", posicion, "\nPosicion encoder 2:", posicion2)
+			pos1.append(posicion)		# Añadir a la lista la posicion actual
+			pos2.append(posicion2)
 			pdPlot.append(pd)		# Añade a la lista la posición deseada
 
 			# Imprimir error
-			print("Error: ",error)
-			errorPlot.append(error)		# Añade el error
+			print("\nError1: ",error1, "\nError2: ",error2)
+			errorPlot1.append(error1)		# Añade el error
+			errorPlot2.append(error2)
 
 			#Imprimir control
-			u = (u1+u2)/2			#Promedio de control
-			print("El promedio de control es de: ",u)
-			control.append(u)		# Añade la acción de control
+			print("\nControl 1: ", u1, "\nControl 2: ", u2)
+			control.append(u1)		# Añade la acción de control
 			control1.append(u1)
 			control2.append(u2)
+
+			print("\nTiempo = ",t)
+			print("\n------------------------------------------------------------")
 
 			sleep(0.1)	# Para evitar problemas de lectura de datos
 		
 		setMotor(0,0,direccion1,direccion2)
 		
-		EnviarGraficas(tiempo,pos,pdPlot,control,control1,control2,errorPlot,client_socket)
+		EnviarGraficas(tiempo,pos1,pos2,pdPlot,control,control1,control2,errorPlot1,errorPlot2,client_socket)
 
 		sleep(.1)
 
