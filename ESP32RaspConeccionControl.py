@@ -139,8 +139,8 @@ def DireccionSaturacion(u):
 		direccion=1
 
 	#Saturacion
-	if(abs(u)>140):
-		u=140
+	if(abs(u)>50):
+		u=50
 	else:
 		u=abs(u)
 	return u, direccion
@@ -166,8 +166,8 @@ try:
 	GPIO.setup(ENCODER_B2, GPIO.IN)
 
 	# Configuracion que detecta flancos, bouncetiem dice que tan rapido lee el encoder
-	GPIO.add_event_detect(ENCODER_A, GPIO.RISING, callback=actualizar_posicion,bouncetime= 100)
-	GPIO.add_event_detect(ENCODER_A2, GPIO.RISING, callback=actualizar_posicion2,bouncetime= 100)
+	GPIO.add_event_detect(ENCODER_A, GPIO.RISING, callback=actualizar_posicion,bouncetime= 120)
+	GPIO.add_event_detect(ENCODER_A2, GPIO.RISING, callback=actualizar_posicion2,bouncetime= 120)
 
 	# -----------------------------------------------------------------------------------------
 
@@ -275,7 +275,7 @@ try:
 		
 		EnviarGraficas(tiempo,pos1,pos2,pdPlot,control,control1,control2,errorPlot1,errorPlot2,client_socket)
 
-		sleep(.1)
+		sleep(.2)
 
 except Exception as e:
     print(f"Error en el servidor: {e}")
