@@ -16,8 +16,8 @@ import serial
 # Funciones 
 # ----------------------------------------------------------------------
 def CrearServidor():
-		server_host = '192.168.1.39'  # Escucha en todas las interfaces de red
-		server_port = 1346  # Puerto de escucha (puedes usar cualquier número de puerto)
+		server_host = '192.168.137.25'  # Escucha en todas las interfaces de red
+		server_port = 1235  # Puerto de escucha (puedes usar cualquier número de puerto)
 		print(f"Esperando conexiones en {server_host}:{server_port}")
 		
 		# Crea el socket del servidor
@@ -55,18 +55,21 @@ def RecibirDatosCliente(client_socket):
 		kd = parametros["kd"]
 		# Tiempo Simulación
 		tSimulacion = parametros["t"]
+		p = parametros["p"]
 		# Opcion de reinicio
 		rein = parametros["rein"]
 
-	return pd, kp, kd, tSimulacion, rein
+	return pd, kp, kd, tSimulacion, p, rein
 
-def EnviarGraficas(tiempo,pos,pdPlot,control,control1,control2,errorPlot,client_socket):
+def EnviarGraficas(tiempo,pos,pos1,pos2,pdPlot,control,control1,control2,errorPlot,client_socket):
 	# Datos que deseas enviar al cliente (en formato de diccionario)
 		datos_a_enviar = {
 			"comando": "Graficas",
 			"parametros": {
 				"tiempo": tiempo,
 				"pos": pos,
+				"pos1": pos1,
+				"pos2": pos2,
 				"pdPlot": pdPlot,
 				"control": control,
 				"control1": control2,
@@ -101,9 +104,9 @@ def actualizar_posicion(channel):
 	global posicion
 	if GPIO.input(ENCODER_A) == GPIO.HIGH:	#Cuando detecta el flanco A 
 		if GPIO.input(ENCODER_B) == GPIO.LOW:	#Si el flanco B esta abajo, se movió hacia adelante
-			posicion += 1
-		else:					#Sino pos se movió para atras
 			posicion -= 1
+		else:					#Sino pos se movió para atras
+			posicion += 1
 	print(f'Posicion encoder 1: {posicion}')
 
 def actualizar_posicion2(channel):
@@ -152,10 +155,10 @@ try:
 	# Configuración Rasp
 	# -----------------------------------------------------------------------------------
 	# Definición de pines BOARD
-	ENCODER_A = 13
-	ENCODER_B = 11		
-	ENCODER_A2 = 16
-	ENCODER_B2 = 15
+	ENCODER_A = 11
+	ENCODER_B = 13		
+	ENCODER_A2 = 15
+	ENCODER_B2 = 29
 	# Configuración de Raspberry Pi GPIO
 	GPIO.setmode(GPIO.BOARD)
 	GPIO.setup(ENCODER_A, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)	# Configurado como PullDown
@@ -181,11 +184,13 @@ try:
 
 	while True:
 		# Datos recibidos
-		pd, kp, kd, tSimulacion, rein = RecibirDatosCliente(client_socket)
+		pd, kp, kd, tSimulacion, porcentaje, rein = RecibirDatosCliente(client_socket)
 		
 		#Inicializar listas, (tiempo,posicion,AccionControl,posicionDeseada y error)
 		tiempo=[]
 		pos = []
+		pos1 = []
+		pos2 = []
 		control = []
 		control1 = []
 		control2 = []
@@ -231,7 +236,7 @@ try:
 			# Parte de direccion y saturacion del control
 			u1, direccion1 = DireccionSaturacion(u)
 			u2, direccion2 = DireccionSaturacion(u)
-
+			u1 = u1*porcentaje
 			setMotor(u1,u2,direccion1,direccion2)
 			
 			if i==1:
@@ -247,6 +252,8 @@ try:
 			print("Posición encoder 1:", posicion)
 			print("Posicion encoder 2:", posicion2)
 			pos.append((posicion+posicion2)/2)		# Añadir a la lista la posicion actual
+			pos1.append(posicion)		# Añadir a la lista la posicion actual
+			pos2.append(posicion2)		# Añadir a la lista la posicion actual
 			pdPlot.append(pd)		# Añade a la lista la posición deseada
 
 			# Imprimir error
@@ -264,7 +271,7 @@ try:
 		
 		setMotor(0,0,direccion1,direccion2)
 		
-		EnviarGraficas(tiempo,pos,pdPlot,control,control1,control2,errorPlot,client_socket)
+		EnviarGraficas(tiempo,pos,pos1,pos2,pdPlot,control,control1,control2,errorPlot,client_socket)
 
 		sleep(.1)
 
@@ -277,6 +284,6 @@ finally:
     # Detener conexiones y limpiar GPIO
     print("Cerrando conexiones...")
     print("Adiós :D")
-    sleep(2)
+    sleep(.5)
     ser.close()
     GPIO.cleanup()
