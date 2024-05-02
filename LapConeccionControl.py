@@ -52,7 +52,7 @@ def muestraGraficas(tiempo,pos1,pos2,pdPlot,control1,control2,errorPlot1,errorPl
 # # -----------------------------------------------------------------------
 
 # Configura el cliente
-server_host = '192.168.137.213'  # La dirección IP de la Raspberry Pi en la red local
+server_host = '192.168.10.60'  # La dirección IP de la Raspberry Pi en la red local
 server_port = 1234  # Puerto de escucha (debe coincidir con el puerto del servidor), 
                     # puede ser cualquier puerto solo tienen que coincidir y que no se este utilizando
 
@@ -77,7 +77,7 @@ try:
             kp=5
             kd=0
             p=100
-            t=50
+            t=30
             i=False
         if i:
             try :
