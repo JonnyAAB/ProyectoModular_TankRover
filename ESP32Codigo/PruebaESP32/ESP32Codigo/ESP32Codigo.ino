@@ -13,10 +13,10 @@ const int RPWM2 = 17;    //Cambiar el numero por el numero de pin del ESP32
 const int En = 2;*/
 
 const int En = 32;
-const int LPWM1 = 33;    //Cambiar el numero por el numero de pin del ESP32 para el 
-const int RPWM1 = 25;    //Cambiar el numero por el numero de pin del ESP32
-const int RPWM2 = 26;    //Cambiar el numero por el numero de pin del ESP32
-const int LPWM2 = 27;    //Cambiar el numero por el numero de pin del ESP32
+const int RPWM1 = 33;    //Cambiar el numero por el numero de pin del ESP32 para el 
+const int LPWM1 = 25;    //Cambiar el numero por el numero de pin del ESP32
+const int LPWM2 = 26;    //Cambiar el numero por el numero de pin del ESP32
+const int RPWM2 = 27;    //Cambiar el numero por el numero de pin del ESP32
 
 void setup() {
   // Inicializamos conexion serial
