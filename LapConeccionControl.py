@@ -13,11 +13,13 @@ import matplotlib.pyplot as plt
 # Por ultimo correr el programa 
 # sudo python3 RaspConeccionControl.py
 
-def muestraGraficas(tiempo,pos,pos1,pos2,pdPlot,control,control1,control2,errorPlot):
+
+def muestraGraficas(tiempo,pos1,pos2,pdPlot,control1,control2,errorPlot1,errorPlot2):
     #Zona de Graficas
     plt.figure(1)
-    plt.plot(tiempo,pos,label='Posición Actual', color='blue',linestyle = '-')
     plt.plot(tiempo,pdPlot,label='Posición Deseada', color='red',linestyle='--')
+    plt.plot(tiempo,pos1,label='Posición 1', color='green',linestyle='--')
+    plt.plot(tiempo,pos2,label='Posición 2', color='orange',linestyle='--')
     # ~ plt.ylim(-100,100)
     # ~ plt.axis([xmin,xmax,ymin,ymax])
     plt.title("Grafica Posición")
@@ -27,7 +29,6 @@ def muestraGraficas(tiempo,pos,pos1,pos2,pdPlot,control,control1,control2,errorP
     plt.grid(True)
 
     plt.figure(2)
-    plt.plot(tiempo,control, label='Accion de Control', color='blue',linestyle = '-')
     plt.plot(tiempo,control1, label='Accion de Control Motor 1', color='red',linestyle = '-')
     plt.plot(tiempo,control2, label='Accion de Control Motor 2', color='green',linestyle = '-')
     plt.title("Grafica Accion de Control")
@@ -37,7 +38,8 @@ def muestraGraficas(tiempo,pos,pos1,pos2,pdPlot,control,control1,control2,errorP
     plt.grid(True)
 	
     plt.figure(3)
-    plt.plot(tiempo,errorPlot, label= 'Error', color='blue',linestyle = '-')
+    plt.plot(tiempo,errorPlot1, label= 'Error1', color='blue',linestyle = '-')
+    plt.plot(tiempo,errorPlot2, label= 'Error2', color='red',linestyle = '-')
     plt.title("Grafica Error")
     plt.xlabel("Tiempo")
     plt.ylabel("Error")
@@ -46,14 +48,12 @@ def muestraGraficas(tiempo,pos,pos1,pos2,pdPlot,control,control1,control2,errorP
 
 	#Muestra las graficas
     plt.show()
-	
-	#	sleep(1)
     plt.close("all")
 # # -----------------------------------------------------------------------
 
 # Configura el cliente
-server_host = '192.168.1.39'  # La dirección IP de la Raspberry Pi en la red local
-server_port = 1346  # Puerto de escucha (debe coincidir con el puerto del servidor), 
+server_host = '192.168.10.60'  # La dirección IP de la Raspberry Pi en la red local
+server_port = 1235  # Puerto de escucha (debe coincidir con el puerto del servidor), 
                     # puede ser cualquier puerto solo tienen que coincidir y que no se este utilizando
 
 # Crea el socket del cliente
@@ -66,12 +66,24 @@ os.system('cls')    # Limpias la consola
 try:
     while True:
         # Definir los datos a enviar en formato JSON
-        pd = int(input("Ingrese posición deseada: "))
-        kp = float(input("Ingrese kp: "))
-        kd = float(input("Ingrese kd: "))
-        t = int(input("Ingrese tiempo simulación: "))
+        try:
+            p = 100 # float(input("Ingrese 1-100: "))
+            pd = int(input("Ingrese posición deseada: "))
+            kp = float(input("Ingrese kp: "))
+            kd = float(input("Ingrese kd: "))
+            t = int(input("Ingrese tiempo simulación: "))
+        except Exception:
+            pd=50
+            kp=1
+            kd=0
+            p=100
+            t=5
+            i=False
         if i:
-            rein = int(input("Quiere reiniciar la posición (1:si, 0:no): "))
+            try :
+                rein = int(input("Quiere reiniciar la posición (1:si, 0:no): "))
+            except Exception:
+                rein = 0
             if rein>=1:
                 rein = True
             else:
@@ -85,6 +97,7 @@ try:
                 "kp": kp,
                 "kd": kd,
                 "t" : t,
+                "p" : p/100,
                 "rein":rein
             }
         }
@@ -119,21 +132,22 @@ try:
         # Acceder a los datos
         comando = data_received["comando"]
         parametros = data_received["parametros"]
-        
         # Obteniendo datos de las listas
         if comando == "Graficas":
             tiempo = parametros["tiempo"]
-            pos = parametros["pos"]
+            pos1 = parametros["pos1"]
+            pos2 = parametros["pos2"]
             pdPlot = parametros["pdPlot"]
-            control = parametros["control"]
             control1 = parametros["control1"]
             control2 = parametros["control2"]
-            errorPlot = parametros["errorPlot"]
+            errorPlot1 = parametros["errorPlot1"]
+            errorPlot2 = parametros["errorPlot2"]
         # -------------------------------------------------------------------------
 
         # Mandamos a llamar a la función de graficas
-        muestraGraficas(tiempo,pos,pdPlot,control,control1,control2,errorPlot)
-
+        # muestraGraficas(tiempo,pos,pdPlot,control,errorPlot)
+        # muestraGraficas(tiempo,pos1,pos2,pdPlot,control1,control2,errorPlot1,errorPlot2)
+        
         # Logica para seguir con el programa o salirse del bucle
         print("Presiona una tecla para continuar o esc (escape) para salir")
         tecla = msvcrt.getch()  # Espera hasta que se presione una tecla
