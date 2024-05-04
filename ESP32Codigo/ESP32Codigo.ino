@@ -9,6 +9,16 @@
   - 25 -- controla el LPWM del motor 1
   - 26 -- controla el LPWM del motor 2
   - 27 -- controla el RPWM del motor 2
+
+  Recibe json
+
+  {
+    "direccion1": 1,
+    "direccion2":1,
+    "u1":50,
+    "u2":50
+  }
+  
 */
 
 const int En = 32;
@@ -20,8 +30,8 @@ const int RPWM2 = 27;
 void setMotor(int u, int RPWM, int LPWM, int direccion)
   {
     // Limitamos el control para que no haya problemas
-    if(u >= 140)
-      u=140;
+    if(u >= 120)
+      u=120;
     if(direccion == 1)
       {
         analogWrite(RPWM,u);

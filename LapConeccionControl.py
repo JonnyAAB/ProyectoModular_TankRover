@@ -53,7 +53,7 @@ def muestraGraficas(tiempo,pos1,pos2,pdPlot,control1,control2,errorPlot1,errorPl
 
 # Configura el cliente
 server_host = '192.168.10.60'  # La dirección IP de la Raspberry Pi en la red local
-server_port = 1234  # Puerto de escucha (debe coincidir con el puerto del servidor), 
+server_port = 1235  # Puerto de escucha (debe coincidir con el puerto del servidor), 
                     # puede ser cualquier puerto solo tienen que coincidir y que no se este utilizando
 
 # Crea el socket del cliente
@@ -74,10 +74,10 @@ try:
             t = int(input("Ingrese tiempo simulación: "))
         except Exception:
             pd=50
-            kp=5
+            kp=1
             kd=0
             p=100
-            t=30
+            t=5
             i=False
         if i:
             try :
