@@ -16,8 +16,8 @@ import serial
 # Funciones 
 # ----------------------------------------------------------------------
 def CrearServidor():
-		server_host = '192.168.137.25'  # Escucha en todas las interfaces de red
-		server_port = 1341  # Puerto de escucha (puedes usar cualquier número de puerto)
+		server_host = '192.168.137.152'  # Escucha en todas las interfaces de red
+		server_port = 1234  # Puerto de escucha (puedes usar cualquier número de puerto)
 		print(f"Esperando conexiones en {server_host}:{server_port}")
 		
 		# Crea el socket del servidor
@@ -154,10 +154,10 @@ try:
 	# Configuración Rasp
 	# -----------------------------------------------------------------------------------
 	# Definición de pines BOARD
-	ENCODER_A = 11
-	ENCODER_B = 13		
-	ENCODER_A2 = 15
-	ENCODER_B2 = 29
+	ENCODER_A = 13
+	ENCODER_B = 11		
+	ENCODER_A2 = 16
+	ENCODER_B2 = 15
 	# Configuración de Raspberry Pi GPIO
 	GPIO.setmode(GPIO.BOARD)
 	GPIO.setup(ENCODER_A, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)	# Configurado como PullDown
@@ -170,7 +170,6 @@ try:
 	GPIO.add_event_detect(ENCODER_A2, GPIO.RISING, callback=actualizar_posicion2,bouncetime= 120)
 
 	# -----------------------------------------------------------------------------------------
-
 	# Configura el servidor
 	# ----------------------------------------------------------------------
 	client_socket = CrearServidor()
@@ -262,7 +261,6 @@ try:
 
 			#Imprimir control
 			print("\nControl 1: ", u1, "\nControl 2: ", u2)
-			control.append(u1)		# Añade la acción de control
 			control1.append(u1)
 			control2.append(u2)
 

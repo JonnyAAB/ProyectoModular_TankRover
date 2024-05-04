@@ -28,12 +28,12 @@ GPIO.setup(EN_PWM, GPIO.OUT)
 # Set and create a PWM Object
 rpwm = GPIO.PWM(RPWM, 1000)  # 1000 Hz PWM frequency, activa de motor
 lpwm = GPIO.PWM(LPWM, 1000)  # 1000 Hz PWM frequency, para cambiar el sentido
-en_pwm = GPIO.PWM(EN_PWM, 1000) # Ambos enable en el mismo canal
+en_pwm = GPIO.output(EN_PWM, GPIO.HIGH) # Ambos enable en el mismo canal
 
 # Start PWM signal
 rpwm.start(0)  # Start with 0% duty cycle
 lpwm.start(0)  # Start with 0% duty cycle
-en_pwm.start(100)
+#en_pwm.start(100)
 
 try:
 	while True:
