@@ -29,6 +29,7 @@ const int RPWM2 = 27;
 
 void setMotor(int u, int RPWM, int LPWM, int direccion)
   {
+    digitalWrite(En, HIGH);
     // Limitamos el control para que no haya problemas
     if(u >= 120)
       u=120;
@@ -58,46 +59,32 @@ void setup() {
 }
 
 void loop() {
-    // Esperar hasta que se reciba un mensaje completo
+if (Serial.available() > 0) {
+    // Lee los datos disponibles en el puerto serial
     String jsonData = Serial.readStringUntil('\n');
 
-    // Procesar el mensaje JSON
-    if (jsonData.length() > 0) {
-        // Habilitar motores
-        digitalWrite(En, HIGH);
-        // Parsea la cadena JSON
-        StaticJsonDocument<200> jsonDoc;
-        DeserializationError error = deserializeJson(jsonDoc, jsonData);
-        if (error) {
-            Serial.print("Error al analizar JSON: ");
-            Serial.println(error.c_str());
-            setMotor(0, RPWM2, LPWM2, 1);
-            setMotor(0, RPWM1, LPWM1, 1);
-        } else {
-            if (!jsonDoc.containsKey("u1") || !jsonDoc.containsKey("u2") ||
-                !jsonDoc.containsKey("direccion1") || !jsonDoc.containsKey("direccion2")) {
-                Serial.println("Error: Datos faltantes en el documento JSON. Estableciendo valores en 0.");
-                // Procesa los datos JSON
-                setMotor(0, RPWM2, LPWM2, 1);
-                setMotor(0, RPWM1, LPWM1, 1);
-            } else {
-                // Procesa los datos JSON
-                float u1 = jsonDoc["u1"];
-                float u2 = jsonDoc["u2"];
-                int direccion1 = jsonDoc["direccion1"];
-                int direccion2 = jsonDoc["direccion2"];
-                // Imprimir el JSON recibido
-                Serial.println("JSON recibido:");
-                serializeJson(jsonDoc, Serial);
-                // Llamamos a la funcion que realiza el control de los motores
-                setMotor(u1, RPWM1, LPWM1, direccion1);
-                setMotor(u2, LPWM2, RPWM2, direccion2);
-            }
-        }
+    // Delay para asegurar la recepción completa del mensaje
+    delay(40);
+
+    // Parsea la cadena JSON
+    StaticJsonDocument<200> jsonDoc;
+    DeserializationError error = deserializeJson(jsonDoc, jsonData);
+    
+    if (error) {
+      Serial.print("Error al analizar JSON: ");
+      Serial.println(error.c_str());
+      setMotor(0,RPWM2,LPWM2,1);
+      setMotor(0,RPWM1,LPWM1,1);
     } else {
-        // Si no se recibió ningún dato
-        Serial.println("Error: No se recibieron datos.");
-        // Deshabilitar motores para ahorrar energía
-        // digitalWrite(En, LOW);
+      // Procesa los datos JSON
+      float u1 = jsonDoc["u1"];
+      float u2 = jsonDoc["u2"];
+      int direccion1 = jsonDoc["direccion1"];
+      int direccion2 = jsonDoc["direccion2"];
+      
+      // Llamamos a la funcion que realiza el control de los motores
+      setMotor(u1,RPWM1,LPWM1,direccion1);
+      setMotor(u2,LPWM2,RPWM2,direccion2);
     }
+  }
 }

@@ -73,11 +73,11 @@ try:
             kd = float(input("Ingrese kd: "))
             t = int(input("Ingrese tiempo simulación: "))
         except Exception:
-            pd=50
-            kp=1
+            pd=0
+            kp=0
             kd=0
             p=100
-            t=5
+            t=1
             i=False
         if i:
             try :
@@ -145,8 +145,7 @@ try:
         # -------------------------------------------------------------------------
 
         # Mandamos a llamar a la función de graficas
-        # muestraGraficas(tiempo,pos,pdPlot,control,errorPlot)
-        # muestraGraficas(tiempo,pos1,pos2,pdPlot,control1,control2,errorPlot1,errorPlot2)
+        muestraGraficas(tiempo,pos1,pos2,pdPlot,control1,control2,errorPlot1,errorPlot2)
         
         # Logica para seguir con el programa o salirse del bucle
         print("Presiona una tecla para continuar o esc (escape) para salir")
