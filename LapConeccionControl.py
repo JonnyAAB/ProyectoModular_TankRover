@@ -3,6 +3,7 @@ from time import sleep,time
 import json
 import msvcrt
 import os
+import pdb
 import matplotlib.pyplot as plt
 
 # IMPORTANTE #
@@ -14,7 +15,7 @@ import matplotlib.pyplot as plt
 # sudo python3 RaspConeccionControl.py
 
 
-def muestraGraficas(tiempo,pos1,pos2,pdPlot,control1,control2,errorPlot1,errorPlot2):
+def muestraGraficas(tiempo,pos1,pos2,pdPlot,control1,control2,errorPlot1,errorPlot2,direccionPlot):
     #Zona de Graficas
     plt.figure(1)
     plt.plot(tiempo,pdPlot,label='Posición Deseada', color='red',linestyle='--')
@@ -46,6 +47,25 @@ def muestraGraficas(tiempo,pos1,pos2,pdPlot,control1,control2,errorPlot1,errorPl
     plt.grid(True)
     plt.legend()
 
+    # Inicializamos los vectores
+    vector1 = []
+    vector2 = []
+
+    # Recorremos la matriz y extraemos los elementos de cada sublista
+    for sublista in direccionPlot:
+        vector1.append(sublista[0])
+        vector2.append(sublista[1])
+
+    plt.figure(4)
+    plt.plot(tiempo,vector1, label= 'Direccion1', color='orange',linestyle = '-')
+    plt.plot(tiempo,vector2, label= 'Direccion2', color='green',linestyle = '-')
+    plt.title("Grafica Error")
+    plt.xlabel("Tiempo")
+    plt.ylabel("Error")
+    plt.grid(True)
+    plt.legend()
+
+
 	#Muestra las graficas
     plt.show()
     plt.close("all")
@@ -73,11 +93,11 @@ try:
             kd = float(input("Ingrese kd: "))
             t = int(input("Ingrese tiempo simulación: "))
         except Exception:
-            pd=0
-            kp=0
+            pd=50
+            kp=5
             kd=0
-            p=100
-            t=1
+            p=20
+            t=5
             i=False
         if i:
             try :
@@ -142,10 +162,11 @@ try:
             control2 = parametros["control2"]
             errorPlot1 = parametros["errorPlot1"]
             errorPlot2 = parametros["errorPlot2"]
+            direccionPlot = parametros["direccionPlot"]
         # -------------------------------------------------------------------------
 
         # Mandamos a llamar a la función de graficas
-        muestraGraficas(tiempo,pos1,pos2,pdPlot,control1,control2,errorPlot1,errorPlot2)
+        muestraGraficas(tiempo,pos1,pos2,pdPlot,control1,control2,errorPlot1,errorPlot2,direccionPlot)
         
         # Logica para seguir con el programa o salirse del bucle
         print("Presiona una tecla para continuar o esc (escape) para salir")
