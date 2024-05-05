@@ -22,10 +22,10 @@
 */
 
 const int En = 32;
-const int RPWM1 = 33;
-const int LPWM1 = 25;
-const int LPWM2 = 26;
-const int RPWM2 = 27;
+const int LPWM1 = 33;
+const int RPWM1 = 25;
+const int RPWM2 = 26;
+const int LPWM2 = 27;
 
 void setMotor(int u, int RPWM, int LPWM, int direccion)
   {
@@ -63,7 +63,7 @@ if (Serial.available() > 0) {
     String jsonData = Serial.readStringUntil('\n');
 
     // Delay para asegurar la recepción completa del mensaje
-    delay(20);
+    delay(60);
 
     // Parsea la cadena JSON
     StaticJsonDocument<200> jsonDoc;
