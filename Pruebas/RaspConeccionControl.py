@@ -17,23 +17,49 @@ def actualizar_posicion(channel):
 	global posicion
 	if GPIO.input(ENCODER_A) == GPIO.HIGH:	#Cuando detecta el flanco A 
 		if GPIO.input(ENCODER_B) == GPIO.LOW:	#Si el flanco B esta abajo, se movió hacia adelante
-			posicion += 1
-		else:					#Sino pos se movió para atras
 			posicion -= 1
-	print(f'Posicion encoder 1: {posicion}')
+		else:					#Sino pos se movió para atras
+			posicion += 1
 
 def actualizar_posicion2(channel):
 	global posicion2
 	if GPIO.input(ENCODER_A2) == GPIO.HIGH:	#Cuando detecta el flanco A 
 		if GPIO.input(ENCODER_B2) == GPIO.LOW:	#Si el flanco B esta abajo, se movió hacia adelante
-			posicion2 += 1
-		else:					#Sino pos se movió para atras
 			posicion2 -= 1
-	print(f'Posicion encoder 2: {posicion2}')
+		else:					#Sino pos se movió para atras
+			posicion2 += 1
 
-def setMotor(direccion,u):
-	lpwm.ChangeDutyCycle(abs(u))  # ajusta según el control
-	rpwm.ChangeDutyCycle(0)  # Si se mueve para atras, entonces el rpwm es 0
+def setMotor(u1,u2,direccion1,direccion2):
+	# Envia los datos a la ESP32 para controlar los motores 
+	data = {
+            "u1": u1, "u2": u2, "direccion1": direccion1, "direccion2": direccion2
+        }
+	"""
+		{
+			"u1": 50, "u2": 50, "direccion1": 1, "direccion2": -1
+		}
+	"""
+	# Convierte el diccionario en una cadena JSON
+	json_data = json.dumps(data)
+	try:
+		# Envía la cadena JSON a la ESP32 a través del puerto serial
+		ser.write((json_data + "\n").encode())
+	except Exception as e:
+		print(f"Error al enviar datos: {e}")
+
+def DireccionSaturacion(u):
+	# Cambio de dirección dependiendo la ley de control
+	if(u<0):
+		direccion=1
+	else:
+		direccion=-1
+
+	#Saturacion
+	if(abs(u)>100):
+		u=100
+	else:
+		u=abs(u)
+	return u, direccion
 
 def muestraGraficas(tiempo,pos,pdPlot,control,errorPlot):
 	#Zona de Graficas

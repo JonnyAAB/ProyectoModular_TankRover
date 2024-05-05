@@ -64,7 +64,7 @@ def RecibirDatosCliente(client_socket):
 
 	return pd, kp, kd, tSimulacion, p, rein
 
-def EnviarGraficas(tiempo,pos1,pos2,pdPlot,control1,control2,errorPlot1,errorPlot2,client_socket):
+def EnviarGraficas(tiempo,pos1,pos2,pdPlot,control1,control2,errorPlot1,errorPlot2,direccionPlot,client_socket):
 	# Datos que deseas enviar al cliente (en formato de diccionario)
 		datos_a_enviar = {
 			"comando": "Graficas",
@@ -76,7 +76,8 @@ def EnviarGraficas(tiempo,pos1,pos2,pdPlot,control1,control2,errorPlot1,errorPlo
 				"control1": control2,
 				"control2": control1,
 				"errorPlot1": errorPlot1,
-				"errorPlot2": errorPlot2
+				"errorPlot2": errorPlot2,
+				"direccionPlot": direccionPlot
 			}
 		}
 
@@ -109,22 +110,25 @@ def actualizar_posicion(channel):
 			posicion -= 1
 		else:					#Sino pos se movió para atras
 			posicion += 1
-	print(f'Posicion encoder 1: {posicion}')
 
 def actualizar_posicion2(channel):
 	global posicion2
 	if GPIO.input(ENCODER_A2) == GPIO.HIGH:	#Cuando detecta el flanco A 
 		if GPIO.input(ENCODER_B2) == GPIO.LOW:	#Si el flanco B esta abajo, se movió hacia adelante
-			posicion2 += 1
-		else:					#Sino pos se movió para atras
 			posicion2 -= 1
-	print(f'Posicion encoder 2: {posicion2}')
+		else:					#Sino pos se movió para atras
+			posicion2 += 1
 
 def setMotor(u1,u2,direccion1,direccion2):
 	# Envia los datos a la ESP32 para controlar los motores 
 	data = {
             "u1": u1, "u2": u2, "direccion1": direccion1, "direccion2": direccion2
         }
+	"""
+		{
+			"u1": 50, "u2": 50, "direccion1": 1, "direccion2": -1
+		}
+	"""
 	# Convierte el diccionario en una cadena JSON
 	json_data = json.dumps(data)
 	try:
@@ -136,13 +140,13 @@ def setMotor(u1,u2,direccion1,direccion2):
 def DireccionSaturacion(u):
 	# Cambio de dirección dependiendo la ley de control
 	if(u<0):
-		direccion=1
-	else:
 		direccion=-1
+	else:
+		direccion=1
 
 	#Saturacion
-	if(abs(u)>50):
-		u=50
+	if(abs(u)>100):
+		u=100
 	else:
 		u=abs(u)
 	return u, direccion
@@ -156,20 +160,20 @@ try:
 	# Configuración Rasp
 	# -----------------------------------------------------------------------------------
 	# Definición de pines BOARD
-	ENCODER_A2 = 13
-	ENCODER_B2 = 11		
-	ENCODER_A = 29
-	ENCODER_B = 15
+	ENCODER_A = 11
+	ENCODER_B = 13
+	ENCODER_A2 = 29
+	ENCODER_B2 = 15
 	# Configuración de Raspberry Pi GPIO
 	GPIO.setmode(GPIO.BOARD)
-	GPIO.setup(ENCODER_A2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)	# Configurado como PullDown
-	GPIO.setup(ENCODER_B2, GPIO.IN)
 	GPIO.setup(ENCODER_A, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)	# Configurado como PullDown
 	GPIO.setup(ENCODER_B, GPIO.IN)
+	GPIO.setup(ENCODER_A2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)	# Configurado como PullDown
+	GPIO.setup(ENCODER_B2, GPIO.IN)
 
 	# Configuracion que detecta flancos, bouncetiem dice que tan rapido lee el encoder
-	GPIO.add_event_detect(ENCODER_A, GPIO.RISING, callback=actualizar_posicion,bouncetime= 100)
-	GPIO.add_event_detect(ENCODER_A2, GPIO.RISING, callback=actualizar_posicion2,bouncetime= 100)
+	GPIO.add_event_detect(ENCODER_A, GPIO.RISING, callback=actualizar_posicion,bouncetime= 150)
+	GPIO.add_event_detect(ENCODER_A2, GPIO.RISING, callback=actualizar_posicion2,bouncetime= 150)
 
 	# -----------------------------------------------------------------------------------------
 
@@ -177,7 +181,6 @@ try:
 	# ----------------------------------------------------------------------
 	ser = serial.Serial('/dev/ttyUSB0', 9600)  # Reemplazar el puerto COM correcto
 	# ----------------------------------------------------------------------
-	global client_socket
 	# Configura el servidor
 	# ----------------------------------------------------------------------
 	client_socket = CrearServidor()
@@ -195,6 +198,7 @@ try:
 		pdPlot=[]
 		errorPlot1 = []
 		errorPlot2 = []
+		direccionPlot = []
 		setMotor(0,0,0,0)
 		# Reinicio Variables globales
 		if(rein):
@@ -231,15 +235,13 @@ try:
 
 			#Imprimir control
 			print("\nControl 1: ", u1, "\nControl 2: ", u2)
-			control1.append(u1)
-			control2.append(u2)
 
 			# Parte de direccion y saturacion del control
 			u1, direccion1 = DireccionSaturacion(u1)
 			u2, direccion2 = DireccionSaturacion(u2)
-			u1 = u1*porcentaje
+			
 			setMotor(u1,u2,direccion1,direccion2)
-
+			
 			if i==1:
 				i+=1
 				t += 0
@@ -257,6 +259,12 @@ try:
 			errorPlot1.append(error1)		# Añade el error
 			errorPlot2.append(error2)
 
+			#Imprimir control
+			print("\nControl 1: ", u1, "\nControl 2: ", u2)
+			control1.append(u1)
+			control2.append(u2)
+			direccionPlot.append([direccion1, direccion2])
+
 			tiempo.append(t)		#Añade el tiempo
 			print("\nTiempo = ",t)
 			print("\n------------------------------------------------------------")
@@ -265,7 +273,7 @@ try:
 
 		setMotor(0,0,0,0)
 		
-		EnviarGraficas(tiempo,pos1,pos2,pdPlot,control1,control2,errorPlot1,errorPlot2,client_socket)
+		EnviarGraficas(tiempo,pos1,pos2,pdPlot,control1,control2,errorPlot1,errorPlot2,direccionPlot,client_socket)
 
 		sleep(.1)
 
