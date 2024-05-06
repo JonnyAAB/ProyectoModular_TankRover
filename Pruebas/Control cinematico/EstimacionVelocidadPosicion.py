@@ -9,7 +9,7 @@ theta_robot = 0
 # Función para calcular la velocidad angular de un motor
 def pose(encoder_count1, encoder_count2, tiempo_muestreo):
     # radio de la rueda dentada en metros
-    radio_rueda = 0
+    radio_rueda = 2.3
 
     # Velocidad angular del motor en radianes por segundo
     velocidad_angular1 = (encoder_count1/16) * ((2*math.pi)/tiempo_muestreo)

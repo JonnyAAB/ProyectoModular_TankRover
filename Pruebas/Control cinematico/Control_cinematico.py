@@ -4,9 +4,9 @@ import math
 
 
 # Reescribiendo el controlador
-R = 0 #Radio de la rueda dentada
-L = 0 #Distancia del centro de una llanta al centro del carrito
-D = 0 #Distancia del eje de la llanta dentada al punto a controlar
+R = 2.3 #Radio de la rueda dentada
+L = 18 #Distancia del centro de una llanta al centro del carrito
+D = 35 #Distancia del eje de la llanta dentada al punto a controlar
 
 # Ganancias de control
 kx = 0 #Para la velocidad lineal
