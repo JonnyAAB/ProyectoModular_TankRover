@@ -4,8 +4,6 @@ import RPi.GPIO as GPIO
 from time import sleep,time
 import json
 import serial
-import numpy as np
-import math
 
 # Pin del motor:
 	#Rojo motor+
@@ -17,26 +15,6 @@ import math
 
 # Funciones 
 # ----------------------------------------------------------------------
-
-def InicializarRasp():
-	# -----------------------------------------------------------------------------------
-	# Definición de pines BOARD
-	ENCODER_A = 11
-	ENCODER_B = 13
-	ENCODER_A2 = 29
-	ENCODER_B2 = 15
-	# Configuración de Raspberry Pi GPIO
-	GPIO.setmode(GPIO.BOARD)
-	GPIO.setup(ENCODER_A, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)	# Configurado como PullDown
-	GPIO.setup(ENCODER_B, GPIO.IN)
-	GPIO.setup(ENCODER_A2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)	# Configurado como PullDown
-	GPIO.setup(ENCODER_B2, GPIO.IN)
-
-	# Configuracion que detecta flancos, bouncetiem dice que tan rapido lee el encoder
-	GPIO.add_event_detect(ENCODER_A, GPIO.RISING, callback=actualizar_posicion,bouncetime= 100)
-	GPIO.add_event_detect(ENCODER_A2, GPIO.RISING, callback=actualizar_posicion2,bouncetime= 100)
-
-
 def actualizar_posicion(channel):
 	global posicion, posicion_anterior, distancia_recorrida
 	if GPIO.input(ENCODER_A) == GPIO.HIGH:	#Cuando detecta el flanco A 
@@ -61,17 +39,76 @@ def actualizar_posicion2(channel):
 	# Actualizar la posición anterior para el próximo cálculo
 	posicion_anterior2 = posicion2
 
-def actualizar_pose(pose):
-	# Calcular los cambios en la posición (delta_x, delta_y) y la orientación delta_theta
-	delta_x = (pose[0] + pose[1]) * cos(pose[2]) / 2
-	delta_y = (pose[0] + pose[1]) * sin(pose[2]) / 2
-	delta_theta = (pose[1] - pose[0]) / 26
+def Odometria(vl,vr,tetha,dt, last_time):
+	
+	#Distancia del centro de una llanta al centro del carrito
+	L = 18
 
-	# Actualizar la pose
-	x += delta_x
-	y += delta_y
-	theta += delta_theta
+	# Calcular la velocidad lineal y angular
+	v = (vr + vl) / 2
+	w = (vr - vl) / L
+
+	# Calcular los cambios en la posición y orientación
+	dx = v * dt * math.cos(theta)
+	dy = v * dt * math.sin(theta)
+	dtheta = w * dt
+
+	# Actualizar la posición y orientación
+	x += dx
+	y += dy
+	theta += dtheta
+
+	# Mantener la orientación en el rango de [0, 2*pi)
+	theta = theta % (2 * math.pi)
+
+	# Actualizar el tiempo
+	last_time = current_time
+
 	return [x,y,theta]
+
+def ControlCinematico(pd, p, dp):
+	# Reescribiendo el controlador
+	R = 2.3 #Radio de la rueda dentada
+	L = 18 #Distancia del centro de una llanta al centro del carrito
+	D = 35 #Distancia del eje de la llanta dentada al punto a controlar
+
+	# Ganancias de control
+	kx = 0 #Para la velocidad lineal
+	ky = 0 #Para la velocidad angular
+
+	# Definir el punto que será controlado
+	xp = p[0] + D * math.cos(p[3])
+	yp = p[1] + D * math.sin(p[3])
+
+	#Error entre la posición actual y la deseada
+	ex = pd[0] - xp
+	ey = pd[1] - yp
+
+	#Calculamos la velocidad angular
+	w = np.array([[(math.cos(p[2])/2)-(D*math.sin(p[2]))/L,],[3,4]])
+
+	# Definición de la matriz
+	A = np.array([
+		[np.cos(p[2])/2 - (D*np.sin(p[2]))/L, np.cos(p[2])/2 + (D*np.sin(p[2]))/L],
+		[np.sin(p[2])/2 + (D*np.cos(p[2]))/L, np.sin(p[2])/2 - (D*np.cos(p[2]))/L]
+	])
+
+	# Matriz del sistema
+	B = np.array([
+		[kx, 0],
+		[0, ky]
+	])
+
+	# Vector de entrada
+	C = np.array([ex, ey])
+
+	# Cálculo del resultado
+	w = (1/R) * np.linalg.inv(A) @ B @ C
+
+	#Revisar distribución de motores
+	wr = w[0]
+	wl = w[1]
+
 
 def setMotor(u1,u2,direccion1,direccion2):
 	# Envia los datos a la ESP32 para controlar los motores 
@@ -92,6 +129,7 @@ def setMotor(u1,u2,direccion1,direccion2):
 		ser.write((json_data + "\n").encode())
 	except Exception as e:
 		print(f"Error al enviar datos: {e}")
+
 
 def DireccionSaturacion(u):
 	# Cambio de dirección dependiendo la ley de control
@@ -117,27 +155,47 @@ try:
 	
 	distancia_recorrida = 0
 	distancia_recorrida2 = 0
-	theta = 0
-
 
 	# Configuración Rasp
-	InicializarRasp()
+	# -----------------------------------------------------------------------------------
+	# Definición de pines BOARD
+	ENCODER_A = 11
+	ENCODER_B = 13
+	ENCODER_A2 = 29
+	ENCODER_B2 = 15
+	# Configuración de Raspberry Pi GPIO
+	GPIO.setmode(GPIO.BOARD)
+	GPIO.setup(ENCODER_A, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)	# Configurado como PullDown
+	GPIO.setup(ENCODER_B, GPIO.IN)
+	GPIO.setup(ENCODER_A2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)	# Configurado como PullDown
+	GPIO.setup(ENCODER_B2, GPIO.IN)
+
+	# Configuracion que detecta flancos, bouncetiem dice que tan rapido lee el encoder
+	GPIO.add_event_detect(ENCODER_A, GPIO.RISING, callback=actualizar_posicion,bouncetime= 100)
+	GPIO.add_event_detect(ENCODER_A2, GPIO.RISING, callback=actualizar_posicion2,bouncetime= 100)
 
 	# -----------------------------------------------------------------------------------------
+
 	# Configuracion puerto serial para la ESP32
 	# ----------------------------------------------------------------------
 	ser = serial.Serial('/dev/ttyUSB0', 9600)  # Reemplazar el puerto COM correcto
 	# ----------------------------------------------------------------------
-
+	# while True:
+	# Datos recibidos
 	try:
+		pd = int(input("Ingrese posición deseada: "))
+		kp = float(input("Ingrese kp: "))
+		kd = float(input("Ingrese kd: "))
 		tSimulacion = int(input("Ingrese tiempo simulación: "))
 
 	except Exception:
+		pd = 100
+		kp = 5
+		kd = 0
 		tSimulacion = 10
 
 	rein = 1
-	i = 0
-
+	#Inicializar listas, (tiempo,posicion,AccionControl,posicionDeseada y error)
 	setMotor(0,0,0,0)
 	# Reinicio Variables globales
 	if(rein):
@@ -147,7 +205,7 @@ try:
 		posicion_anterior2 = 0
 		distancia_recorrida = 0
 		distancia_recorrida2 = 0
-		theta = 0
+		Odometria(0,0,0,0,0)
 
 	# Inicializar parametros control	
 	errorAnt1 = 0
@@ -155,89 +213,56 @@ try:
 	tiempoAnterior = 0
 	t = 0
 	i=1 	# Para agregar el primer elemento, que la diferencia de tiempo es mucha
-
-	p = [distancia_recorrida,distancia_recorrida2,theta]
-
-	xd = np.array([100,100,math.pi])	# xd, yd, theta_d
-	p = np.array(actualizar_pose(p))	# x, y, theta
-	dp = np.array([0, 0, 0])       		# Vx, Vy, Vw
-
-	v = 0	# Velocidad lineal
-	w = 0	# Velocidad Angular
-	
-	# Propiedades del Robot
-	R = 2.3 #Radio de la rueda dentada
-	L = 18 #Distancia del centro de una llanta al centro del carrito
-
 	setMotor(0,0,0,0)
 
-	# Ganancias de control
-	kv = 0.5
-	kw = 0.7
+	vl = 0
+	vr = 0 
+	theta = 0
+	dt = 0
 
-	# Propiedades simulación
-	t = 0.01;       		 # Paso entre muestra
-	s = tSimulacion;         # Tiempo simulación
-	n = s/t;        		 # Numero de muestras
+	pose = Odometria(vl,vr,theta,dt, tiempoAnterior)
 
-	# Inicialización Gráficas
-	t_plot = np.linspace(t, s, n)
-	p_plot = np.zeros((3, n))
-	pp_plot = np.zeros((3, n))
-	c_plot = np.zeros((2, n))
-	e_plot = np.zeros((2, n))
-	r_plot = np.zeros((2, n))
-
-	# Ciclo de Iteración
-	for i in range(n):
+	while t<tSimulacion:				#Esto es para parar el ciclo por tiempo
 		#Calculo del tiempo
 		tiempoActual=time()
-		dt = tiempoActual-tiempoAnterior		#Diferencia de tiempo
+		deltaTiempo = tiempoActual-tiempoAnterior	#Diferencia de tiempo
 		tiempoAnterior = tiempoActual			# El tiempo anterior se convierte en el actual
 
-		# Control
-		ev = np.sqrt((xd[0]-p[0])**2 + (xd[1]-p[1])**2)  # Error lineal
-		theta_d = np.arctan2(xd[1]-p[1], xd[0]-p[0])
-		ew = theta_d - p[2]
-		ew = np.arctan2(np.sin(ew), np.cos(ew))  # Error Angular
+		ControlCinematico(pd,pose,dp)
+		#Calculo parte derivativa
+		error1 = pd-distancia_recorrida				# Calculo del error
+		dError1 = (error1-errorAnt1)/deltaTiempo		# Derivada del tiempo
+		errorAnt1 = error1
 
-		e_plot[:, i] = np.array([ev, ew])
+		error2 = pd-distancia_recorrida2				# Calculo del error
+		dError2 = (error2-errorAnt2)/deltaTiempo		# Derivada del tiempo
+		errorAnt2 = error2				
 
-		v = kv * ev  # Control velocidad lineal
-		w = kw * ew  # Control velocidad angular
-		c_plot[:, i] = np.array([v, w])		
-
-		# Control Ruedas
-		wr = (2*v + w*L) / (2*R)
-		wl = (2*v - w*L) / (2*R)
-		r_plot[:, i] = np.array([wr, wl])
+		# Ley de control
+		u1 = kp*error1+kd*dError1
+		u2 = kp*error2+kd*dError2
 
 		#Imprimir control
-		print("\nControl 1: ", wr, "\nControl 2: ", wl)
+		print("\nControl 1: ", u1, "\nControl 2: ", u2)
 
 		# Parte de direccion y saturacion del control
-		u1, direccion1 = DireccionSaturacion(wr)
-		u2, direccion2 = DireccionSaturacion(wl)
+		u1, direccion1 = DireccionSaturacion(u1)
+		u2, direccion2 = DireccionSaturacion(u2)
 		
 		setMotor(u1,u2,direccion1,direccion2)
-
-		p_plot[:, i] = p  # Grafica la posición
-		pp_plot[:, i] = dp  # Grafica la velocidad
-
-		p = p + dp * t  # Paso Integración
-
-		# Imprimir la posición actual del encoder
-		print("\nPosición encoder 1:", distancia_recorrida, "\nPosicion encoder 2:", distancia_recorrida2, "\nPosicion deseada:", pd)
-
-		# Imprimir error
-		print("\nError lineal: ",ev, "\nError Angular: ",ew)
 
 		if i==1:
 			i+=1
 			t += 0
 		else:
-			t += dt
-		
+			t += deltaTiempo
+				
+		# Imprimir la posición actual del encoder
+		print("\nPosición encoder 1:", distancia_recorrida, "\nPosicion encoder 2:", distancia_recorrida2, "\nPosicion deseada:", pd)
+
+		# Imprimir error
+		print("\nError1: ",error1, "\nError2: ",error2)
+
 		print("\nTiempo = ",t)
 		print("\n------------------------------------------------------------")
 

@@ -39,7 +39,7 @@ class OdometryCalculator:
 # Ejemplo de uso
 if __name__ == "__main__":
     # Distancia entre las ruedas del robot (en metros)
-    Distancia = 40  # La distancia es de 40 pulsos por metro
+    wheel_distance = 40  # La distancia es de 40 pulsos por metro
 
     # Crear un objeto de calculadora de odometría
     odometry_calculator = OdometryCalculator(wheel_distance)
