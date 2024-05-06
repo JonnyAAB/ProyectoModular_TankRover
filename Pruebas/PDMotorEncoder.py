@@ -16,20 +16,28 @@ import serial
 # Funciones 
 # ----------------------------------------------------------------------
 def actualizar_posicion(channel):
-	global posicion
+	global posicion, posicion_anterior, distancia_recorrida
 	if GPIO.input(ENCODER_A) == GPIO.HIGH:	#Cuando detecta el flanco A 
 		if GPIO.input(ENCODER_B) == GPIO.LOW:	#Si el flanco B esta abajo, se movió hacia adelante
 			posicion -= 1
 		else:					#Sino pos se movió para atras
 			posicion += 1
+	# Calcular la distancia recorrida desde el último cálculo
+	distancia_recorrida += (100 / 40) * abs(posicion - posicion_anterior)
+	# Actualizar la posición anterior para el próximo cálculo
+	posicion_anterior = posicion
 
 def actualizar_posicion2(channel):
-	global posicion2
+	global posicion2, posicion_anterior2, distancia_recorrida2
 	if GPIO.input(ENCODER_A2) == GPIO.HIGH:	#Cuando detecta el flanco A 
 		if GPIO.input(ENCODER_B2) == GPIO.LOW:	#Si el flanco B esta abajo, se movió hacia adelante
 			posicion2 -= 1
 		else:					#Sino pos se movió para atras
 			posicion2 += 1
+	# Calcular la distancia recorrida desde el último cálculo
+	distancia_recorrida2 += (100 / 40) * abs(posicion2 - posicion_anterior2)
+	# Actualizar la posición anterior para el próximo cálculo
+	posicion_anterior2 = posicion2
 
 def setMotor(u1,u2,direccion1,direccion2):
 	# Envia los datos a la ESP32 para controlar los motores 
@@ -67,7 +75,12 @@ def DireccionSaturacion(u):
 try:
 	# Variables globales
 	posicion = 0
+	posicion_anterior = 0
 	posicion2 = 0
+	posicion_anterior2 = 0
+	
+	distancia_recorrida = 0
+	distancia_recorrida2 = 0
 
 	# Configuración Rasp
 	# -----------------------------------------------------------------------------------
@@ -84,8 +97,8 @@ try:
 	GPIO.setup(ENCODER_B2, GPIO.IN)
 
 	# Configuracion que detecta flancos, bouncetiem dice que tan rapido lee el encoder
-	GPIO.add_event_detect(ENCODER_A, GPIO.RISING, callback=actualizar_posicion,bouncetime= 150)
-	GPIO.add_event_detect(ENCODER_A2, GPIO.RISING, callback=actualizar_posicion2,bouncetime= 150)
+	GPIO.add_event_detect(ENCODER_A, GPIO.RISING, callback=actualizar_posicion,bouncetime= 100)
+	GPIO.add_event_detect(ENCODER_A2, GPIO.RISING, callback=actualizar_posicion2,bouncetime= 100)
 
 	# -----------------------------------------------------------------------------------------
 
@@ -93,91 +106,95 @@ try:
 	# ----------------------------------------------------------------------
 	ser = serial.Serial('/dev/ttyUSB0', 9600)  # Reemplazar el puerto COM correcto
 	# ----------------------------------------------------------------------
-	while True:
-		# Datos recibidos
-		p = .98 # float(input("Ingrese 0-1: "))
-		try:
-			pd = 0 #int(input("Ingrese posición deseada: "))
-			kp = 0 #float(input("Ingrese kp: "))
-			kd = 0 #float(input("Ingrese kd: "))
-			p = float(input("Ingrese 0-1: "))
-			tSimulacion = int(input("Ingrese tiempo simulación: "))
+	# while True:
+	# Datos recibidos
+	try:
+		pd = int(input("Ingrese posición deseada: "))
+		kp = float(input("Ingrese kp: "))
+		kd = float(input("Ingrese kd: "))
+		tSimulacion = int(input("Ingrese tiempo simulación: "))
 
-		except Exception:
-			pd = 50
-			kp = 1
-			kd = 0
-			tSimulacion = 5
+	except Exception:
+		pd = 100
+		kp = 5
+		kd = 0
+		tSimulacion = 10
 
-		rein = 1
-		#Inicializar listas, (tiempo,posicion,AccionControl,posicionDeseada y error)
-		setMotor(0,0,0,0)
-		# Reinicio Variables globales
-		if(rein):
-			posicion = 0
-			posicion2 = 0
+	rein = 1
+	#Inicializar listas, (tiempo,posicion,AccionControl,posicionDeseada y error)
+	setMotor(0,0,0,0)
+	# Reinicio Variables globales
+	if(rein):
+		posicion = 0
+		posicion_anterior = 0
+		posicion2 = 0
+		posicion_anterior2 = 0
+		distancia_recorrida = 0
+		distancia_recorrida2 = 0
 
-		# Inicializar parametros control	
-		errorAnt1 = 0
-		errorAnt2 = 0
-		tiempoAnterior = 0
-		t = 0
-		i=1 	# Para agregar el primer elemento, que la diferencia de tiempo es mucha
 
-		setMotor(0,0,0,0)
+	# Inicializar parametros control	
+	errorAnt1 = 0
+	errorAnt2 = 0
+	tiempoAnterior = 0
+	t = 0
+	i=1 	# Para agregar el primer elemento, que la diferencia de tiempo es mucha
 
-		while t<tSimulacion:				#Esto es para parar el ciclo por tiempo
-			#Calculo del tiempo
-			tiempoActual=time()
-			deltaTiempo = tiempoActual-tiempoAnterior	#Diferencia de tiempo
-			tiempoAnterior = tiempoActual			# El tiempo anterior se convierte en el actual
+	setMotor(0,0,0,0)
 
-			#Calculo parte derivativa
-			error1 = pd-posicion				# Calculo del error
-			dError1 = (error1-errorAnt1)/deltaTiempo		# Derivada del tiempo
-			errorAnt1 = error1
+	while t<tSimulacion:				#Esto es para parar el ciclo por tiempo
+		#Calculo del tiempo
+		tiempoActual=time()
+		deltaTiempo = tiempoActual-tiempoAnterior	#Diferencia de tiempo
+		tiempoAnterior = tiempoActual			# El tiempo anterior se convierte en el actual
 
-			error2 = pd-posicion2				# Calculo del error
-			dError2 = (error2-errorAnt2)/deltaTiempo		# Derivada del tiempo
-			errorAnt2 = error2				
+		#Calculo parte derivativa
+		error1 = pd-distancia_recorrida				# Calculo del error
+		dError1 = (error1-errorAnt1)/deltaTiempo		# Derivada del tiempo
+		errorAnt1 = error1
 
-			# Ley de control
-			# u1 = kp*error1+kd*dError1
-			# u2 = kp*error2+kd*dError2
-			u1 = 100
-			u2 = 100*p
+		error2 = pd-distancia_recorrida2				# Calculo del error
+		dError2 = (error2-errorAnt2)/deltaTiempo		# Derivada del tiempo
+		errorAnt2 = error2				
 
-			#Imprimir control
-			print("\nControl 1: ", u1, "\nControl 2: ", u2)
+		# Ley de control
+		u1 = kp*error1+kd*dError1
+		u2 = kp*error2+kd*dError2
+		# u1 = 50
+		# u2 = 50
 
-			# Parte de direccion y saturacion del control
-			u1, direccion1 = DireccionSaturacion(u1)
-			u2, direccion2 = DireccionSaturacion(u2)
-			
-			setMotor(u1,u2,direccion1,direccion2)
+		#Imprimir control
+		print("\nControl 1: ", u1, "\nControl 2: ", u2)
 
-			if i==1:
-				i+=1
-				t += 0
-			else:
-				t += deltaTiempo
-					
-			# Imprimir la posición actual del encoder
-			print("\nPosición encoder 1:", posicion, "\nPosicion encoder 2:", posicion2, "\nPosicion deseada:", pd)
+		# Parte de direccion y saturacion del control
+		u1, direccion1 = DireccionSaturacion(u1)
+		u2, direccion2 = DireccionSaturacion(u2)
+		
+		setMotor(u1,u2,direccion1,direccion2)
 
-			# Imprimir error
-			print("\nError1: ",error1, "\nError2: ",error2)
+		if i==1:
+			i+=1
+			t += 0
+		else:
+			t += deltaTiempo
+				
+		# Imprimir la posición actual del encoder
+		print("\nPosición encoder 1:", distancia_recorrida, "\nPosicion encoder 2:", distancia_recorrida2, "\nPosicion deseada:", pd)
 
-			print("\nTiempo = ",t)
-			print("\n------------------------------------------------------------")
+		# Imprimir error
+		print("\nError1: ",error1, "\nError2: ",error2)
 
-			sleep(0.1)	# Para evitar problemas de lectura de datos
+		print("\nTiempo = ",t)
+		print("\n------------------------------------------------------------")
 
-		setMotor(0,0,0,0)
-		sleep(.1)
+		sleep(0.1)	# Para evitar problemas de lectura de datos
+
+	setMotor(0,0,0,0)
+	sleep(.1)
 
 except Exception as e:
 	setMotor(0, 0, 0, 0)
+	sleep(.5)
 	print(e)
 	pass
 
@@ -187,4 +204,4 @@ finally:
 	GPIO.cleanup()	
 	print("Cerrando conexiones...")
 	print("Adiós :D")
-	sleep(.5)
+	sleep(1)
