@@ -39,32 +39,41 @@ def actualizar_posicion2(channel):
 	# Actualizar la posición anterior para el próximo cálculo
 	posicion_anterior2 = posicion2
 
-def Odometria(vl,vr,tetha,dt, last_time):
-	
-	#Distancia del centro de una llanta al centro del carrito
-	L = 18
+class OdometryCalculator:
+    def __init__(self, wheel_distance):
+        self.wheel_distance = wheel_distance
+        self.x = 0  # Posición x del robot
+        self.y = 0  # Posición y del robot
+        self.theta = 0  # Orientación del robot
+        self.last_time = None
 
-	# Calcular la velocidad lineal y angular
-	v = (vr + vl) / 2
-	w = (vr - vl) / L
+    def update(self, vr, vl, current_time):
+        if self.last_time is None:
+            self.last_time = current_time
+            return
 
-	# Calcular los cambios en la posición y orientación
-	dx = v * dt * math.cos(theta)
-	dy = v * dt * math.sin(theta)
-	dtheta = w * dt
+        # Calcular el cambio en el tiempo
+        dt = current_time - self.last_time
 
-	# Actualizar la posición y orientación
-	x += dx
-	y += dy
-	theta += dtheta
+        # Calcular la velocidad lineal y angular
+        v = (vr + vl) / 2
+        w = (vr - vl) / self.wheel_distance
 
-	# Mantener la orientación en el rango de [0, 2*pi)
-	theta = theta % (2 * math.pi)
+        # Calcular los cambios en la posición y orientación
+        dx = v * dt * math.cos(self.theta)
+        dy = v * dt * math.sin(self.theta)
+        dtheta = w * dt
 
-	# Actualizar el tiempo
-	last_time = current_time
+        # Actualizar la posición y orientación
+        self.x += dx
+        self.y += dy
+        self.theta += dtheta
 
-	return [x,y,theta]
+        # Mantener la orientación en el rango de [0, 2*pi)
+        self.theta = self.theta % (2 * math.pi)
+
+        # Actualizar el tiempo
+        self.last_time = current_time
 
 def ControlCinematico(pd, p, dp):
 	# Reescribiendo el controlador
@@ -108,7 +117,6 @@ def ControlCinematico(pd, p, dp):
 	#Revisar distribución de motores
 	wr = w[0]
 	wl = w[1]
-
 
 def setMotor(u1,u2,direccion1,direccion2):
 	# Envia los datos a la ESP32 para controlar los motores 
