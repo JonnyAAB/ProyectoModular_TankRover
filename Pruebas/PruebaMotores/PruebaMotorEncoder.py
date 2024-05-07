@@ -52,11 +52,20 @@ def actualizar_posicion2(channel):
 			posicion2 += 1
 	print(f'Posicion encoder 2: {posicion2}')
 
+def callback_encoder2(channel):
+    global posicion2
+    if GPIO.input(ENCODER_A2) == GPIO.HIGH:
+        if GPIO.input(ENCODER_B2) == GPIO.LOW:
+            posicion2 -= 1
+        else:
+            posicion2 += 1
+    print(f'Posicion encoder 2: {posicion2}')
 
 try:
 	# Configuracion que detecta flancos, bouncetiem dice que tan rapido lee el encoder
 	GPIO.add_event_detect(ENCODER_A, GPIO.RISING, callback=actualizar_posicion,bouncetime= 100)
-	GPIO.add_event_detect(ENCODER_A2, GPIO.RISING, callback=actualizar_posicion2,bouncetime= 100)
+	# GPIO.add_event_detect(ENCODER_A2, GPIO.RISING, callback=actualizar_posicion2,bouncetime= 100)
+	GPIO.add_event_detect(ENCODER_A2, GPIO.RISING, callback=callback_encoder2, bouncetime=100)
 	while True:
 		'''mediaPosicion = (posicion + posicion2)/2
 

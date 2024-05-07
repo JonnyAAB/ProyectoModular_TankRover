@@ -26,7 +26,8 @@ ex = pd[0] - xp
 ey = pd[1] - yp
 
 #Calculamos la velocidad angular
-w = np.array([[(math.cos(p[2])/2)-(D*math.sin(p[2]))/L,],[3,4]])
+#w = np.array([[(math.cos(p[2])/2)-(D*math.sin(p[2]))/L,],[3,4]])
+w = np.zeros((2,1))
 
 # Definición de la matriz
 A = np.array([
