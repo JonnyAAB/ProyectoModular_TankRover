@@ -84,8 +84,8 @@ d = 1/100   #Distancia del eje de las ruedas al punto a controlar
 t = 1       #Intervalos de tiempo
 
 #Inicializamos los pesos de la red
-neurona_x = nPID(3, 0.01) #Beta debe ser muy pequeña
-neurona_y = nPID(3, 0.01)
+neurona_x = nPID(3, 1) #Beta debe ser muy pequeña
+neurona_y = nPID(3, 1)
 
 xd = 1.5                          # Posición Deseada x
 yd = 1.5                          # Posición Deseada y
@@ -99,12 +99,12 @@ L = 1/10      # Distancia del centro de una llanta al centro del carrito
 D = 35/100      # Distancia del eje de la llanta dentada al punto a controlar
 
 # Propiedades de la simulación
-t = 0.05        # Paso entre muestra
+dt = 0.1        # Paso entre muestra
 s = 30          # Tiempo de simulación
-n = int(s/t)    # Número de muestras
+n = int(s/dt)    # Número de muestras
 
 # Inicialización de las gráficas
-t_plot = np.arange(t, s+t, t)
+t_plot = np.arange(dt, s+dt, dt)
 p_plot = np.zeros((3, n))
 pp_plot = np.zeros((3, n))
 c_plot = np.zeros((2, n))
@@ -189,7 +189,7 @@ for i in range(n):
     p_plot[:, i] = p     # Grafica la posición
     pp_plot[:, i] = dp   # Grafica la velocidad
 
-    p = p + dp*t         # Paso de integración
+    p = p + dp*dt         # Paso de integración
 
     t += 1
 
