@@ -21,6 +21,10 @@ def dibujar_diferencial(p, Lr):
     cx = x + (Lr-l) * np.cos(phi)
     cy = y + (Lr-l) * np.sin(phi)
     plt.plot(cx, cy, 'b', linewidth=2, markersize=10)
+    # Base (rectángulo)
+    # cx = [x - Lr, x + Lr, x + Lr, x - Lr, x - Lr]
+    # cy = [y - l*10, y - l*10, y + l*10, y + l*10, y - l*10]
+    # plt.plot(cx, cy, 'b', linewidth=2, markersize=10)
 
     # Marcador delantero
     Tob = np.array([[np.cos(theta), -np.sin(theta), x],
@@ -62,7 +66,7 @@ def dibujar_diferencial(p, Lr):
     plt.plot([p1[0], p3[0]], [p1[1], p3[1]], linewidth=2, markersize=10, color='b')
     plt.plot([p2[0], p4[0]], [p2[1], p4[1]], linewidth=2, markersize=10, color='b')
     plt.plot([p3[0], p4[0]], [p3[1], p4[1]], linewidth=2, markersize=10, color='b')
-    plt.grid()
+    plt.grid(True)
 
     # Actualizar el gráfico
     plt.draw()
@@ -195,6 +199,10 @@ for i in range(n):
 
     # Dibujar el diferencial
     dibujar_diferencial(p, L)
+    plt.cla()
+    plt.grid(True)
+
+    
 
 # Crear una sola ventana para todos los gráficos
 plt.figure(figsize=(12, 10))
