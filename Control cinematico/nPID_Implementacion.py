@@ -242,15 +242,11 @@ try:
         wr = (2 * v + w * L) / (2 * R)
         wl = (2 * v - w * L) / (2 * R)
 
-        # Convertir de rad/s a RPM
-        wr = (wr*60)/(math.pi*2)
-        wl = (wl*60)/(math.pi*2)
-
         # Regla de conversion newtoniana
-        # 100u --- 128RPM
+        # 100u --- 13.14 rad/s
         #   ?  --- wl--wr
-        wr = (wr * 100)/128
-        wl = (wl * 100)/128
+        wr = (wr * 100)/13.14
+        wl = (wl * 100)/13.14
 
         # Imprimir control
         print("\nControl 1: ", u[0], "\nControl 2: ", u[1])
