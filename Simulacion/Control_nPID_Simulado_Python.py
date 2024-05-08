@@ -11,7 +11,7 @@ def dibujar_diferencial(p, Lr):
     l = Lr * 0.2
     L = Lr * 0.4
 
-    plt.axis([-2, 2, -2, 2])
+    plt.axis([-20, 20, -20, 20])
     plt.xlabel('x')
     plt.ylabel('y')
     plt.grid(True)
@@ -21,6 +21,10 @@ def dibujar_diferencial(p, Lr):
     cx = x + (Lr-l) * np.cos(phi)
     cy = y + (Lr-l) * np.sin(phi)
     plt.plot(cx, cy, 'b', linewidth=2, markersize=10)
+    # Base (rectángulo)
+    # cx = [x - Lr, x + Lr, x + Lr, x - Lr, x - Lr]
+    # cy = [y - l*10, y - l*10, y + l*10, y + l*10, y - l*10]
+    # plt.plot(cx, cy, 'b', linewidth=2, markersize=10)
 
     # Marcador delantero
     Tob = np.array([[np.cos(theta), -np.sin(theta), x],
@@ -62,7 +66,7 @@ def dibujar_diferencial(p, Lr):
     plt.plot([p1[0], p3[0]], [p1[1], p3[1]], linewidth=2, markersize=10, color='b')
     plt.plot([p2[0], p4[0]], [p2[1], p4[1]], linewidth=2, markersize=10, color='b')
     plt.plot([p3[0], p4[0]], [p3[1], p4[1]], linewidth=2, markersize=10, color='b')
-    plt.grid()
+    plt.grid(True)
 
     # Actualizar el gráfico
     plt.draw()
@@ -84,19 +88,19 @@ d = 1/100   #Distancia del eje de las ruedas al punto a controlar
 t = 1       #Intervalos de tiempo
 
 #Inicializamos los pesos de la red
-neurona_x = nPID(3, 1) #Beta debe ser muy pequeña
-neurona_y = nPID(3, 1)
+neurona_x = nPID(3, 0.1) #Beta debe ser muy pequeña
+neurona_y = nPID(3, 0.1)
 
-xd = 1.5                          # Posición Deseada x
-yd = 1.5                          # Posición Deseada y
+xd = 5                        # Posición Deseada x
+yd = 5                         # Posición Deseada y
 p = np.array([0.0, 0.0, 0.0])     # Posición Actual
 dp = np.array([0.0, 0.0, 0.0])    # Vx, Vy, Vw
 v = 0.0
 w = 0.0
 
-R = 2.3/100     # Radio de la rueda dentada
-L = 1/10      # Distancia del centro de una llanta al centro del carrito
-D = 35/100      # Distancia del eje de la llanta dentada al punto a controlar
+R = 2.3/10     # Radio de la rueda dentada
+L = 1/1      # Distancia del centro de una llanta al centro del carrito
+D = 35/10      # Distancia del eje de la llanta dentada al punto a controlar
 
 # Propiedades de la simulación
 dt = 0.1        # Paso entre muestra
@@ -116,6 +120,8 @@ for i in range(n):
     x = p[0]
     y = p[1]
     theta = p[2] % (2*np.pi) # Acotar theta entre +- 2pi
+
+    print("x: ", x, " y: ", y)
 
     #Posición del punto adelantado del carrito
     xp = x + d*math.cos(theta)
@@ -171,6 +177,8 @@ for i in range(n):
     v = u[0]      # Control velocidad lineal
     w = u[1]      # Control velocidad angular
 
+    print("v: ", v, " w: ", w)
+
     c_plot[0, i] = v[0]  # Extrae el primer elemento de v
     c_plot[1, i] = w[0]  # Extrae el primer elemento de w
 
@@ -178,6 +186,7 @@ for i in range(n):
 # Control de las ruedas
     wr = (2*v + w*L) / (2*R)
     wl = (2*v - w*L) / (2*R)
+    print("wr: ", wr, " wl: ", wl)
     r_plot[0, i] = wr[0]
     r_plot[1, i] = wl[0]
 
@@ -195,6 +204,10 @@ for i in range(n):
 
     # Dibujar el diferencial
     dibujar_diferencial(p, L)
+    plt.cla()
+    plt.grid(True)
+
+    
 
 # Crear una sola ventana para todos los gráficos
 plt.figure(figsize=(12, 10))

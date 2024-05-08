@@ -166,10 +166,10 @@ try:
     errorAnt1, errorAnt2 = 0
     tiempoAnterior = 0
     t = 0
-    i = 1  # Para agregar el primer elemento, que la diferencia de tiempo es mucha
-    d = 35 / 100  # Distancia del eje de las ruedas al punto a controlar
-    R = 2.3 / 100  # Radio de la rueda dentada
-    L = 1 / 10  # Distancia del centro de una llanta al centro del carrito
+    i = 1         # Para agregar el primer elemento, que la diferencia de tiempo es mucha
+    d = 35        # Distancia del eje de las ruedas al punto a controlar
+    R = 2.3       # Radio de la rueda dentada
+    L = 1         # Distancia del centro de una llanta al centro del carrito
     t_muestreo = 0  # Tiempo de muestreo para estimación de pose
 
     setMotor(0, 0, 0, 0)
@@ -241,6 +241,16 @@ try:
         # Control de las ruedas
         wr = (2 * v + w * L) / (2 * R)
         wl = (2 * v - w * L) / (2 * R)
+
+        # Convertir de rad/s a RPM
+        wr = (wr*60)/(math.pi*2)
+        wl = (wl*60)/(math.pi*2)
+
+        # Regla de conversion newtoniana
+        # 100u --- 128RPM
+        #   ?  --- wl--wr
+        wr = (wr * 100)/128
+        wl = (wl * 100)/128
 
         # Imprimir control
         print("\nControl 1: ", u[0], "\nControl 2: ", u[1])
